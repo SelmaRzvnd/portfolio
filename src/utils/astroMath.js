@@ -28,6 +28,11 @@ export const getVancouverLST = (date = new Date()) => {
   return wrap24(lstDeg / 15);
 };
 
+/**
+ * RA/Dec -> Alt/Az -> 3D Cartesian
+ * RA in hours, Dec in degrees, latitude in degrees, LST in hours
+ * Azimuth is measured east of north.
+ */
 export const getHorizontalCoords = (raHours, decDeg, latDeg, lstHours) => {
   const ra = raHours * HOUR2RAD;
   const dec = decDeg * DEG2RAD;
@@ -43,13 +48,13 @@ export const getHorizontalCoords = (raHours, decDeg, latDeg, lstHours) => {
 
   const alt = Math.asin(clamp(sinAlt, -1, 1));
 
-  const az = Math.atan2(
-    Math.sin(ha),
-    Math.cos(ha) * Math.sin(lat) - Math.tan(dec) * Math.cos(lat)
-  ); // Fixed azimuth formula for N=0 East
+  const az = -Math.atan2(
+    -Math.sin(ha),
+    Math.tan(dec) * Math.cos(lat) - Math.sin(lat) * Math.cos(ha)
+  );
 
   const azNorthEast = wrap2pi(az);
-  const r = 90; // Slightly smaller dome for edge clipping
+  const r = 90;
 
   return {
     x: r * Math.cos(alt) * Math.sin(azNorthEast),
