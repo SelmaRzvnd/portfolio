@@ -15,6 +15,7 @@ import Research from "./content/Research";
 import AboutMe from "./content/AboutMe";
 import PlanetModal from "@/components/PlanetModal";
 import Star from "@/components/Star";
+import NavigationOverlay from "@/components/NavigationOverlay";
 
 function Stars({ shaderRef }) {
   const { positions, colors, brightnesses } = useMemo(() => {
@@ -176,6 +177,7 @@ export default function StarField() {
 
   const shaderRef = useRef();
   const starDomeRef = useRef();
+  const [navOpen, setNavOpen] = useState(false);
 
   const handleVelocity = (v) => {
     if (shaderRef.current) {
@@ -185,6 +187,7 @@ export default function StarField() {
 
   return (
     <>
+    <NavigationOverlay onNavigate={handlePlanetClick} />
       <Canvas
         dpr={typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1}
         camera={{ position: [0, 0, 50], fov: 75}}
