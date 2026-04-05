@@ -1,56 +1,43 @@
 "use client";
 
 import { useMemo, useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
 import starData from "@/data/stars.json";
 import { getHorizontalCoords, getVancouverLST } from "@/utils/astroMath";
 import CameraController from "@/components/CameraController";
 import Planet from "@/components/Planet";
 
-function Stars() {
-  const { positions, colors, brightnesses, stats } = useMemo(() => {
+
+
+function Stars({ shaderRef }) {
+  const { positions, colors, brightnesses } = useMemo(() => {
     const pos = [];
     const col = [];
     const bright = [];
     const colorObj = new THREE.Color();
-
     const lst = getVancouverLST();
     const lat = 49.2827;
-
-    const magRef = 0.0; // zero-point reference
-    const exposureFactor = 20.0; // scale flux into displayable range (tweak)
-
-    let minB = Infinity;
-    let maxB = -Infinity;
+    const magRef = 0.0; 
+    const exposureFactor = 20.0;
 
     starData.forEach((star) => {
       const coords = getHorizontalCoords(star.ra, star.dec, lat, lst);
       if (coords.altDeg <= 0) return;
 
-      // Standard astronomical conversion: flux ∝ 10^{-0.4 * (mag - magRef)}
       const flux = Math.pow(10, -0.4 * (star.mag - magRef));
+      let b = Math.min(1.0, flux * exposureFactor);
 
-      // Scale flux into a 0..1 range
-      let b = flux * exposureFactor;
-      b = Math.min(1.0, b);
-
-      // color: neutral white scaled by brightness (linear)
       colorObj.setRGB(b, b, b);
-
       pos.push(coords.x, coords.y, coords.z);
       col.push(colorObj.r, colorObj.g, colorObj.b);
       bright.push(b);
-
-      if (b < minB) minB = b;
-      if (b > maxB) maxB = b;
     });
 
     return {
       positions: new Float32Array(pos),
       colors: new Float32Array(col),
       brightnesses: new Float32Array(bright),
-      stats: { minB: isFinite(minB) ? minB : 0, maxB: isFinite(maxB) ? maxB : 0 },
     };
   }, []);
 
@@ -59,13 +46,11 @@ function Stars() {
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
         <bufferAttribute attach="attributes-color" args={[colors, 3]} />
-        <bufferAttribute
-          attach="attributes-aBrightness"
-          args={[brightnesses, 1]}
-        />
+        <bufferAttribute attach="attributes-aBrightness" args={[brightnesses, 1]} />
       </bufferGeometry>
 
       <shaderMaterial
+        ref={shaderRef}
         transparent
         depthWrite={false}
         depthTest={true}
@@ -73,9 +58,10 @@ function Stars() {
         uniforms={{
           uSize: { value: 1.2 },
           uScale: { value: 180.0 },
-          uSizeBoost: { value: 3.0 }, // how strongly brightness affects size
+          uSizeBoost: { value: 3.0 },
           uExposure: { value: 1.6 },
           uGamma: { value: 2.2 },
+          uVelocity: { value: 0.0 }, 
         }}
         vertexShader={`
           attribute float aBrightness;
@@ -85,50 +71,66 @@ function Stars() {
           uniform float uScale;
           uniform float uSizeBoost;
           uniform float uExposure;
-          uniform float uGamma;
 
           void main() {
-            // pass color through (already scaled by CPU brightness)
             vColor = color;
-
-            // apply exposure and a mild perceptual mapping for size/alpha
-            // keep mapping monotonic so magnitude ordering is preserved
             float b = aBrightness * uExposure;
-            // apply a contrast boost (power <1 brightens faint relative to bright)
-            // we use pow with exponent <1 to expand low end; tune as needed
             b = pow(b, 0.6);
-
-            // store for fragment shader
             vBrightness = clamp(b, 0.0, 1.0);
-
             vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-
-            // size depends strongly on brightness and distance
-            float sizeFactor = pow(vBrightness, 0.5) * uSizeBoost + 1.0;            // ensure minimum size > 1 to avoid single-pixel artifacts on some displays
+            float sizeFactor = pow(vBrightness, 0.5) * uSizeBoost + 1.0;
             gl_PointSize = max(1.5, uSize * sizeFactor * (uScale / -mvPosition.z));
-
             gl_Position = projectionMatrix * mvPosition;
           }
         `}
+    
         fragmentShader={`
           varying vec3 vColor;
           varying float vBrightness;
           uniform float uGamma;
+          uniform float uVelocity;
 
           void main() {
             vec2 uv = gl_PointCoord.xy;
             float r = length(uv - vec2(0.5));
-
-            // HARD EDGE STAR (no blur)
             if (r > 0.18) discard;
 
-            // brightness directly controls intensity
-            float alpha = vBrightness;
+            // 1. Calculate Shift
+            float beta = clamp(uVelocity * 3.0, -0.9, 0.9);
+            float shift = sqrt((1.0 + beta) / (1.0 - beta));
 
-            // gamma correction
-            vec3 col = pow(vColor, vec3(1.0 / uGamma));
+            // 2. The Fix: We start with a base color of 1,1,1 for the shift calculation
+            // then apply the brightness later and prevent "pre-clipping."
+            vec3 baseColor = vec3(1.0);
 
-            gl_FragColor = vec4(col * alpha, alpha);
+            // 3. Apply the shift with "Channel Suppression"
+            // If shift > 1 (Redshift), we keep Red at 1.0 but CRUSH Green and Blue.
+            // If shift < 1 (Blueshift), we keep Blue at 1.0 but CRUSH Red and Green.
+            vec3 shiftedColor;
+            if (shift > 1.0) {
+                // Redshift: Red stays high, others fall away based on shift intensity
+                shiftedColor = vec3(
+                    1.0, 
+                    pow(1.0 / shift, 2.0), // Squared suppression for more "color"
+                    pow(1.0 / shift, 3.0) 
+                );
+            } else {
+                // Blueshift: Blue stays high, others fall away
+                shiftedColor = vec3(
+                    pow(shift, 3.0),
+                    pow(shift, 2.0),
+                    1.0
+                );
+            }
+
+            // 4. Apply the star's actual brightness and the movement "flare"
+            float flare = 1.0 + abs(beta) * 3.0;
+            vec3 finalCol = shiftedColor * vBrightness * flare;
+
+            // 5. Final Gamma Correction
+            finalCol = pow(finalCol, vec3(1.0 / uGamma));
+
+            gl_FragColor = vec4(finalCol, vBrightness);
           }
         `}
       />
@@ -136,24 +138,25 @@ function Stars() {
   );
 }
 
-function StarDome({ children }) {
-  const groupRef = useRef();
 
-  useFrame(({ camera }) => {
-    if (groupRef.current) {
-      groupRef.current.position.copy(camera.position);
-      groupRef.current.rotation.z += 0.00002;
-    }
-  });
-
+function StarDome({ children, domeRef }) {
   return (
-    <group ref={groupRef} rotation={[-Math.PI / 2, 0, 0]}>
+    <group ref={domeRef} rotation={[-Math.PI / 2, 0, 0]}>
       {children}
     </group>
   );
 }
 
 export default function StarField() {
+  const shaderRef = useRef();
+  const starDomeRef = useRef();
+
+  const handleVelocity = (v) => {
+    if (shaderRef.current) {
+      shaderRef.current.uniforms.uVelocity.value = v;
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-0 pointer-events-none bg-[#020205]">
       <Canvas
@@ -162,21 +165,24 @@ export default function StarField() {
         gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
       >
         
-        {/* 1. Wrap Stars in StarDome so they follow the camera's position */}
-        <StarDome>
-          <Stars />
+        <StarDome domeRef={starDomeRef}>
+          <Stars shaderRef={shaderRef} />
         </StarDome>
 
-        {/* 2. Leave Planets in a standard group so the camera scrolls past them */}
         <group rotation={[-Math.PI / 2, 0, 0]}>
-          <Planet position={[0, 40, 0]} color="#6366f1" size={10} />
-          <Planet position={[0, 20, 0]} color="#22c55e" size={12} />
-          <Planet position={[0, 70, 0]} color="#f97316" size={14} />
+          <Planet position={[0, 70, 0]} color="#6366f1" size={10} />
+          <Planet position={[0, 30, 0]} color="#22c55e" size={12} />
+          <Planet position={[0, 50, 0]} color="#f97316" size={14} />
         </group>
 
-        <CameraController />
+        <CameraController 
+          onVelocityUpdate={handleVelocity} 
+          starDomeRef={starDomeRef} 
+        />
       </Canvas>
     </div>
   );
 }
+
+
 
