@@ -12,7 +12,9 @@ import Work from "./content/Work";
 import Projects from "./content/Projects";
 import Awards from "./content/Awards";
 import Research from "./content/Research";
+import AboutMe from "./content/AboutMe";
 import PlanetModal from "@/components/PlanetModal";
+import Star from "@/components/Star";
 
 function Stars({ shaderRef }) {
   const { positions, colors, brightnesses } = useMemo(() => {
@@ -159,7 +161,8 @@ export default function StarField() {
     work: { title: "Work Experience", component: <Work /> },
     projects: { title: "Projects", component: <Projects /> },
     awards: { title: "Awards", component: <Awards /> },
-    research: { title: "Research", component: <Research /> }
+    research: { title: "Research", component: <Research /> },
+    about: { title: "About Me", component: <AboutMe /> }
   };
 
   const handlePlanetClick = (type) => {
@@ -190,11 +193,15 @@ export default function StarField() {
         <StarDome domeRef={starDomeRef}>
           <Stars shaderRef={shaderRef} />
         </StarDome>
+
+        <Star onClick={() => handlePlanetClick("about")} />
+          
         <group>
         <Planet 
           position={[22, 8, 150]} 
           color="#f97316"
           size={14} 
+          hoverText="Education"
           onClick={() => handlePlanetClick("education")} 
         />
 
@@ -202,6 +209,7 @@ export default function StarField() {
           position={[-25, -10, 110]} 
           color="#ace6ee"
           size={15} 
+          hoverText="Work"
           onClick={() => handlePlanetClick("work")} 
         />
 
@@ -209,6 +217,7 @@ export default function StarField() {
           position={[18, 15, 60]} 
           color="#e484eb"
           size={13} 
+          hoverText="Projects"
           onClick={() => handlePlanetClick("projects")} 
         />
 
@@ -216,6 +225,7 @@ export default function StarField() {
           position={[-15, -12, 0]} 
           color="#56e694"
           size={16} 
+          hoverText="Awards"
           onClick={() => handlePlanetClick("awards")} 
         />
 
@@ -223,6 +233,7 @@ export default function StarField() {
           position={[28, 5, -50]} 
           color="#f43f5e"
           size={14} 
+          hoverText="Research"
           onClick={() => handlePlanetClick("research")} 
         />
       </group>
@@ -230,6 +241,7 @@ export default function StarField() {
         <CameraController 
           onVelocityUpdate={handleVelocity} 
           starDomeRef={starDomeRef} 
+          isPaused={modalData.isOpen}
         />
       </Canvas>
 

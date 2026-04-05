@@ -2,9 +2,10 @@
 
 import { useRef, useMemo, useState } from "react";
 import { useFrame } from "@react-three/fiber";
+import { Text, Billboard } from "@react-three/drei";
 import * as THREE from "three";
 
-export default function Planet({ position, color = "#4f46e5", size = 5, onClick }) {
+export default function Planet({ position, color = "#4f46e5", size = 5, hoverText = "Planet", onClick }) {
   const meshRef = useRef();
   const [hovered, setHover] = useState(false);
 
@@ -20,15 +21,14 @@ export default function Planet({ position, color = "#4f46e5", size = 5, onClick 
         uHover: { value: 0.0 },
         uTime: { value: 0.0 }
       },
-        vertexShader: `
+      vertexShader: `
         varying vec2 vUv;
         void main() {
-            vUv = uv;
-            // Use the standard 'position' attribute provided by Three.js
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
-        `,
-        fragmentShader: `
+      `,
+      fragmentShader: `
         uniform vec3 uColor;
         uniform vec3 uDeepColor;
         uniform vec3 uHighlightColor;
@@ -79,10 +79,10 @@ export default function Planet({ position, color = "#4f46e5", size = 5, onClick 
         }
       `,
     };
-  }, [color, position]);
+  }, [color]);
 
   useFrame((state) => {
-    if (!meshRef.current) retuarn;
+    if (!meshRef.current) return;
     
     meshRef.current.quaternion.copy(state.camera.quaternion);
 
@@ -95,17 +95,19 @@ export default function Planet({ position, color = "#4f46e5", size = 5, onClick 
   });
 
   return (
-    <mesh 
-      ref={meshRef} 
-      position={position} 
-      scale={[size, size, 1]}
-      onClick={(e) => { 
-        e.stopPropagation(); 
-        onClick(); 
-      }}
-      onPointerOver={() => setHover(true)}
-      onPointerOut={() => setHover(false)}
-    >
+  <group
+    position={position}
+    onClick={(e) => { 
+      e.stopPropagation(); 
+      onClick(); 
+    }}
+    onPointerOver={(e) => { 
+      e.stopPropagation(); 
+      setHover(true); 
+    }}
+    onPointerOut={() => setHover(false)}
+  >
+    <mesh ref={meshRef} scale={[size, size, 1]}>
       <planeGeometry args={[2, 2]} />
       <shaderMaterial 
         args={[materialArgs]} 
@@ -113,5 +115,25 @@ export default function Planet({ position, color = "#4f46e5", size = 5, onClick 
         depthWrite={true} 
       />
     </mesh>
-  );
+
+    {hovered && (
+      <Billboard 
+        position={[0, 0, 0]}
+      >
+        <Text
+          fontSize={size * 0.22}
+          color="#ffffff"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={size * 0.015}
+          outlineColor={color}
+          maxWidth={size * 1.2}
+          letterSpacing={0.02}
+        >
+          {hoverText}
+        </Text>
+      </Billboard>
+    )}
+  </group>
+);
 }

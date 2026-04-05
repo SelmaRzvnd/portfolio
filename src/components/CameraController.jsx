@@ -4,7 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-export default function CameraController({ onVelocityUpdate, starDomeRef }) {
+export default function CameraController({isPaused, onVelocityUpdate, starDomeRef }) {
   const scroll = useRef(0);
   const velocity = useRef(0);
 
@@ -13,11 +13,14 @@ export default function CameraController({ onVelocityUpdate, starDomeRef }) {
 
   useEffect(() => {
     const handleWheel = (e) => {
+      if (isPaused) return; 
+
       velocity.current += e.deltaY * 0.0002;
     };
+
     window.addEventListener("wheel", handleWheel);
     return () => window.removeEventListener("wheel", handleWheel);
-  }, []);
+  }, [isPaused]);
 
     useFrame((state) => {
     let nextScroll = scroll.current + velocity.current;
