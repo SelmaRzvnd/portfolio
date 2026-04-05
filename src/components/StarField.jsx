@@ -1,14 +1,18 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
 import starData from "@/data/stars.json";
 import { getHorizontalCoords, getVancouverLST } from "@/utils/astroMath";
 import CameraController from "@/components/CameraController";
 import Planet from "@/components/Planet";
-
-
+import Education from "./content/Education";
+import Work from "./content/Work";
+import Projects from "./content/Projects";
+import Awards from "./content/Awards";
+import Research from "./content/Research";
+import PlanetModal from "@/components/PlanetModal";
 
 function Stars({ shaderRef }) {
   const { positions, colors, brightnesses } = useMemo(() => {
@@ -42,7 +46,7 @@ function Stars({ shaderRef }) {
   }, []);
 
   return (
-    <points renderOrder={999}>
+    <points renderOrder={999} raycast={() => null}>
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
         <bufferAttribute attach="attributes-color" args={[colors, 3]} />
@@ -138,16 +142,35 @@ function Stars({ shaderRef }) {
   );
 }
 
-
 function StarDome({ children, domeRef }) {
   return (
-    <group ref={domeRef} rotation={[-Math.PI / 2, 0, 0]}>
+    <group ref={domeRef} rotation={[-Math.PI / 2, 0, 0]} raycast={null}>
       {children}
     </group>
   );
 }
 
+
 export default function StarField() {
+  const [modalData, setModalData] = useState({ isOpen: false, title: "", content: null });
+
+  const planetSections = {
+    education: { title: "Education", component: <Education /> },
+    work: { title: "Work Experience", component: <Work /> },
+    projects: { title: "Projects", component: <Projects /> },
+    awards: { title: "Awards", component: <Awards /> },
+    research: { title: "Research", component: <Research /> }
+  };
+
+  const handlePlanetClick = (type) => {
+    const section = planetSections[type];
+    setModalData({ 
+      isOpen: true, 
+      title: section.title, 
+      content: section.component 
+    });
+  };
+
   const shaderRef = useRef();
   const starDomeRef = useRef();
 
@@ -158,31 +181,64 @@ export default function StarField() {
   };
 
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none bg-[#020205]">
+    <>
       <Canvas
         dpr={typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1}
-        camera={{ position: [0, 0, 0], fov: 75, near: 1, far: 1000 }}
+        camera={{ position: [0, 0, 50], fov: 75}}
         gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
       >
-        
         <StarDome domeRef={starDomeRef}>
           <Stars shaderRef={shaderRef} />
         </StarDome>
+        <group>
+        <Planet 
+          position={[22, 8, 150]} 
+          color="#f97316"
+          size={14} 
+          onClick={() => handlePlanetClick("education")} 
+        />
 
-        <group rotation={[-Math.PI / 2, 0, 0]}>
-          <Planet position={[10, 70, 20]} color="#6366f1" size={10} />
-          <Planet position={[-50, 30, -30]} color="#22c55e" size={12} />
-          <Planet position={[-10, 50, 50]} color="#f97316" size={14} />
-        </group>
+        <Planet 
+          position={[-25, -10, 110]} 
+          color="#ace6ee"
+          size={15} 
+          onClick={() => handlePlanetClick("work")} 
+        />
+
+        <Planet 
+          position={[18, 15, 60]} 
+          color="#e484eb"
+          size={13} 
+          onClick={() => handlePlanetClick("projects")} 
+        />
+
+        <Planet 
+          position={[-15, -12, 0]} 
+          color="#56e694"
+          size={16} 
+          onClick={() => handlePlanetClick("awards")} 
+        />
+
+        <Planet 
+          position={[28, 5, -50]} 
+          color="#f43f5e"
+          size={14} 
+          onClick={() => handlePlanetClick("research")} 
+        />
+      </group>
 
         <CameraController 
           onVelocityUpdate={handleVelocity} 
           starDomeRef={starDomeRef} 
         />
       </Canvas>
-    </div>
+
+      <PlanetModal 
+        isOpen={modalData.isOpen} 
+        onClose={() => setModalData(prev => ({ ...prev, isOpen: false }))}
+        title={modalData.title}
+        content={modalData.content}
+      />
+    </>
   );
 }
-
-
-
