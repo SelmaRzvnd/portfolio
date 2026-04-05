@@ -96,7 +96,7 @@ function Stars({ shaderRef }) {
             if (r > 0.18) discard;
 
             // 1. Calculate Shift
-            float beta = clamp(uVelocity * 3.0, -0.9, 0.9);
+            float beta = clamp(uVelocity * 1.5, -0.9, 0.9);
             float shift = sqrt((1.0 + beta) / (1.0 - beta));
 
             // 2. The Fix: We start with a base color of 1,1,1 for the shift calculation
@@ -170,9 +170,9 @@ export default function StarField() {
         </StarDome>
 
         <group rotation={[-Math.PI / 2, 0, 0]}>
-          <Planet position={[0, 70, 0]} color="#6366f1" size={10} />
-          <Planet position={[0, 30, 0]} color="#22c55e" size={12} />
-          <Planet position={[0, 50, 0]} color="#f97316" size={14} />
+          <Planet position={[10, 70, 20]} color="#6366f1" size={10} />
+          <Planet position={[-50, 30, -30]} color="#22c55e" size={12} />
+          <Planet position={[-10, 50, 50]} color="#f97316" size={14} />
         </group>
 
         <CameraController 
