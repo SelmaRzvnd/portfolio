@@ -54,7 +54,7 @@ export const getHorizontalCoords = (raHours, decDeg, latDeg, lstHours) => {
   );
 
   const azNorthEast = wrap2pi(az);
-  const r = 90;
+  const r = 100;
 
   return {
     x: r * Math.cos(alt) * Math.sin(azNorthEast),

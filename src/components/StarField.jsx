@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
-import { Canvas } from "@react-three/fiber";
+import { useMemo, useRef } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import starData from "@/data/stars.json";
 import { getHorizontalCoords, getVancouverLST } from "@/utils/astroMath";
+import CameraController from "@/components/CameraController";
+import Planet from "@/components/Planet";
 
 function Stars() {
   const { positions, colors, brightnesses, stats } = useMemo(() => {
@@ -16,7 +18,6 @@ function Stars() {
     const lst = getVancouverLST();
     const lat = 49.2827;
 
-    // CPU-side tuning: reference magnitude and exposure scale
     const magRef = 0.0; // zero-point reference
     const exposureFactor = 20.0; // scale flux into displayable range (tweak)
 
@@ -30,13 +31,11 @@ function Stars() {
       // Standard astronomical conversion: flux ∝ 10^{-0.4 * (mag - magRef)}
       const flux = Math.pow(10, -0.4 * (star.mag - magRef));
 
-      // Scale flux into a 0..1 range but avoid heavy compression here
+      // Scale flux into a 0..1 range
       let b = flux * exposureFactor;
-
-      // clamp but do not aggressively compress; shader will apply perceptual mapping
       b = Math.min(1.0, b);
 
-      // color: neutral white scaled by brightness (we keep color linear)
+      // color: neutral white scaled by brightness (linear)
       colorObj.setRGB(b, b, b);
 
       pos.push(coords.x, coords.y, coords.z);
@@ -55,12 +54,6 @@ function Stars() {
     };
   }, []);
 
-  // Optional: console log to help tune exposureFactor
-  if (typeof window !== "undefined") {
-    // eslint-disable-next-line no-console
-    console.log("star brightness range:", { min: stats?.minB, max: stats?.maxB });
-  }
-
   return (
     <points renderOrder={999}>
       <bufferGeometry>
@@ -78,11 +71,11 @@ function Stars() {
         depthTest={true}
         vertexColors
         uniforms={{
-          uSize: { value: 1.2 }, // slightly larger base size to avoid single-pixel sprites
-          uScale: { value: 180.0 }, // perspective scale factor
+          uSize: { value: 1.2 },
+          uScale: { value: 180.0 },
           uSizeBoost: { value: 3.0 }, // how strongly brightness affects size
-          uExposure: { value: 1.6 }, // multiplies brightness in shader
-          uGamma: { value: 2.2 }, // display gamma (use 1.0..2.2)
+          uExposure: { value: 1.6 },
+          uGamma: { value: 2.2 },
         }}
         vertexShader={`
           attribute float aBrightness;
@@ -143,19 +136,47 @@ function Stars() {
   );
 }
 
+function StarDome({ children }) {
+  const groupRef = useRef();
+
+  useFrame(({ camera }) => {
+    if (groupRef.current) {
+      groupRef.current.position.copy(camera.position);
+      groupRef.current.rotation.z += 0.00002;
+    }
+  });
+
+  return (
+    <group ref={groupRef} rotation={[-Math.PI / 2, 0, 0]}>
+      {children}
+    </group>
+  );
+}
+
 export default function StarField() {
   return (
     <div className="fixed inset-0 z-0 pointer-events-none bg-[#020205]">
-    <Canvas
-      dpr={typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1}
-      camera={{ position: [0, 0, 0], fov: 75, near: 1, far: 1000 }}
-      gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
-    >
-
-        <group rotation={[-Math.PI / 2, 0, 0]}>
+      <Canvas
+        dpr={typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1}
+        camera={{ position: [0, 0, 0], fov: 75, near: 1, far: 1000 }}
+        gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
+      >
+        
+        {/* 1. Wrap Stars in StarDome so they follow the camera's position */}
+        <StarDome>
           <Stars />
+        </StarDome>
+
+        {/* 2. Leave Planets in a standard group so the camera scrolls past them */}
+        <group rotation={[-Math.PI / 2, 0, 0]}>
+          <Planet position={[0, 40, 0]} color="#6366f1" size={10} />
+          <Planet position={[0, 20, 0]} color="#22c55e" size={12} />
+          <Planet position={[0, 70, 0]} color="#f97316" size={14} />
         </group>
+
+        <CameraController />
       </Canvas>
     </div>
   );
 }
+
