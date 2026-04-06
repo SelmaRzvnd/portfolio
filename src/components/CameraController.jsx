@@ -6,46 +6,62 @@ import { useEffect, useRef } from "react";
 export default function CameraController({ isPaused, onVelocityUpdate, starDomeRef }) {
   const scroll = useRef(0);
   const velocity = useRef(0);
+  const lastTouchY = useRef(0);
 
-  const MIN_SCROLL = -20; 
-  const MAX_SCROLL = 20;  
-  const TRAVEL_MULTIPLIER = 20; 
-  const BASE_Z = 250; 
+  const MIN_SCROLL = -20;
+  const MAX_SCROLL = 20;
+  const TRAVEL_MULTIPLIER = 20;
+  const BASE_Z = 250;
 
   useEffect(() => {
+    if (isPaused) return;
+
     const handleWheel = (e) => {
-      if (isPaused) return; 
       velocity.current += e.deltaY * 0.0002;
     };
 
+    const handleTouchStart = (e) => {
+      lastTouchY.current = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e) => {
+      const touchY = e.touches[0].clientY;
+      const deltaY = lastTouchY.current - touchY;
+            velocity.current += deltaY * 0.0005;
+      
+      lastTouchY.current = touchY;
+    };
+
     window.addEventListener("wheel", handleWheel);
-    return () => window.removeEventListener("wheel", handleWheel);
+    window.addEventListener("touchstart", handleTouchStart);
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+    };
   }, [isPaused]);
 
   useFrame((state) => {
     let nextScroll = scroll.current + velocity.current;
-    
-    // Clamp the scroll values
+
     if (nextScroll <= MIN_SCROLL) {
       nextScroll = MIN_SCROLL;
-      velocity.current = 0; 
+      velocity.current = 0;
     } else if (nextScroll >= MAX_SCROLL) {
       nextScroll = MAX_SCROLL;
       velocity.current = 0;
     }
 
     scroll.current = nextScroll;
-    velocity.current *= 0.95; // Friction
+    velocity.current *= 0.95;
 
     onVelocityUpdate(velocity.current);
 
-    // Apply the multiplier and the base offset
-    const targetZ = BASE_Z - (scroll.current * TRAVEL_MULTIPLIER);
-    
-    // Smoothly interpolate the camera to the target Z
+    const targetZ = BASE_Z - scroll.current * TRAVEL_MULTIPLIER;
     state.camera.position.z += (targetZ - state.camera.position.z) * 0.1;
 
-    // Keep the star dome centered on the camera
     if (starDomeRef.current) {
       starDomeRef.current.position.copy(state.camera.position);
     }
