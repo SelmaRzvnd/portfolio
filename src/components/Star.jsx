@@ -5,7 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import { Text, Billboard } from "@react-three/drei";
 import * as THREE from "three";
 
-export default function Star({ position = [0, -30, 200], onClick = () => {} }) {
+export default function Star({ position = [0, -35, 200], onClick = () => {} }) {
   const meshRef = useRef();
   const [hovered, setHover] = useState(false);
 

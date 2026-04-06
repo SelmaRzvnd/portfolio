@@ -7,7 +7,9 @@ export default function Education() {
             <h3 className="text-xl font-bold">🎓 University of British Columbia</h3>
             <p className="text-blue-300 italic">Combined Honours in Physics & Computer Science</p>
           </div>
-          <span className="text-right text-sm opacity-80">2025 — Present<br/>Vancouver, BC</span>
+          <span className="text-right text-sm opacity-80">
+            2025 — Present<br/>Vancouver, BC
+          </span>
         </div>
         <p className="mt-2 text-lg font-semibold">✨ GPA: 93.4%</p>
       </section>
@@ -15,7 +17,13 @@ export default function Education() {
       <section className="space-y-3">
         <h4 className="text-lg font-bold flex items-center gap-2">📜 Certifications</h4>
         <div className="grid grid-cols-1 gap-2 text-sm">
-          {["Data Analysis (Python) — IBM", "AI Introduction — IBM", "Web Dev Fundamentals — IBM", "Quantum Tech — Sharif Institute"].map((cert) => (
+          {[
+            "Data Analysis Using Python — IBM (2026)",
+            "Data Fundamentals — IBM SkillsBuild (2026)",
+            "Web Development Fundamentals — IBM SkillsBuild (2026)",
+            "Introduction to Artificial Intelligence — IBM (2024)",
+            "Quantum Technologies Workshop — Sharif Institute of Technology (2023)"
+          ].map(cert => (
             <div key={cert} className="bg-white/5 p-2 rounded border border-white/10">
               🔹 {cert}
             </div>
@@ -23,5 +31,6 @@ export default function Education() {
         </div>
       </section>
     </div>
+
   );
 }
