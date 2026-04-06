@@ -25,11 +25,14 @@ export default function CameraController({ isPaused, onVelocityUpdate, starDomeR
     };
 
     const handleTouchMove = (e) => {
-      const touchY = e.touches[0].clientY;
-      const deltaY = lastTouchY.current - touchY;
-            velocity.current += deltaY * 0.0005;
-      
-      lastTouchY.current = touchY;
+    e.preventDefault();
+
+    const touchY = e.touches[0].clientY;
+    const deltaY = lastTouchY.current - touchY;
+
+    velocity.current += deltaY * 0.0005;
+
+    lastTouchY.current = touchY;
     };
 
     window.addEventListener("wheel", handleWheel);
