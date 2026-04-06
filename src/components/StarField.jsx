@@ -177,7 +177,6 @@ export default function StarField() {
 
   const shaderRef = useRef();
   const starDomeRef = useRef();
-  const [navOpen, setNavOpen] = useState(false);
 
   const handleVelocity = (v) => {
     if (shaderRef.current) {
@@ -190,7 +189,7 @@ export default function StarField() {
     <NavigationOverlay onNavigate={handlePlanetClick} />
       <Canvas
         dpr={typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1}
-        camera={{ position: [0, 0, 50], fov: 75}}
+        camera={{ position: [0, 0, 300], fov: 75}}
         gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
       >
         <StarDome domeRef={starDomeRef}>
