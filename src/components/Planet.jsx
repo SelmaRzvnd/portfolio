@@ -1,17 +1,31 @@
 "use client";
 
-import { useRef, useMemo, useState } from "react";
+import { useRef, useMemo, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Text, Billboard } from "@react-three/drei";
 import * as THREE from "three";
 
 export default function Planet({ position, color = "#4f46e5", size = 5, hoverText = "Planet", onClick }) {
   const meshRef = useRef();
+  
+  // React state for UI rendering
   const [hovered, setHover] = useState(false);
+  
+  // Refs for logic inside the high-speed useFrame loop
+  const hoveredRef = useRef(false);
+  const isVisibleRef = useRef(true);
+  
+  // Cache the position so we don't create a new Vector3 60 times a second
+  const planetPos = useMemo(() => new THREE.Vector3(...position), [position]);
+
+  // Change cursor when hovering over an interactable planet
+  useEffect(() => {
+    document.body.style.cursor = hovered ? "pointer" : "auto";
+    return () => { document.body.style.cursor = "auto"; };
+  }, [hovered]);
 
   const materialArgs = useMemo(() => {
     const baseColor = new THREE.Color(color);
-    
     return {
       uniforms: {
         uColor: { value: baseColor },
@@ -83,57 +97,81 @@ export default function Planet({ position, color = "#4f46e5", size = 5, hoverTex
 
   useFrame((state) => {
     if (!meshRef.current) return;
-    
-    meshRef.current.quaternion.copy(state.camera.quaternion);
 
+    meshRef.current.quaternion.copy(state.camera.quaternion);
     meshRef.current.material.uniforms.uTime.value = state.clock.getElapsedTime();
-    const dist = state.camera.position.distanceTo(new THREE.Vector3(...position));
-    meshRef.current.material.uniforms.uOpacity.value = THREE.MathUtils.clamp(1 - dist / 150, 0, 1);
+
+    // Calculate distance
+    const dist = state.camera.position.distanceTo(planetPos);
+    
+    // Calculate and apply visual opacity
+    const opacity = THREE.MathUtils.clamp(1 - dist / 150, 0, 1);
+    meshRef.current.material.uniforms.uOpacity.value = opacity;
+
+    // Define interactive threshold (140 means it stops interacting just before fully invisible)
+    const interactable = dist < 140;
+    isVisibleRef.current = interactable;
+
+    // Force unhover if camera moves out of range while currently hovering
+    if (!interactable && hoveredRef.current) {
+      hoveredRef.current = false;
+      setHover(false);
+    }
+
+    // Apply hover glow uniform using the ref state
     meshRef.current.material.uniforms.uHover.value = THREE.MathUtils.lerp(
-      meshRef.current.material.uniforms.uHover.value, hovered ? 1.0 : 0.0, 0.1
+      meshRef.current.material.uniforms.uHover.value, 
+      hoveredRef.current ? 1.0 : 0.0, 
+      0.1
     );
   });
 
   return (
-  <group
-    position={position}
-    onClick={(e) => { 
-      e.stopPropagation(); 
-      onClick(); 
-    }}
-    onPointerOver={(e) => { 
-      e.stopPropagation(); 
-      setHover(true); 
-    }}
-    onPointerOut={() => setHover(false)}
-  >
-    <mesh ref={meshRef} scale={[size, size, 1]}>
-      <planeGeometry args={[2, 2]} />
-      <shaderMaterial 
-        args={[materialArgs]} 
-        transparent 
-        depthWrite={true} 
-      />
-    </mesh>
+    <group
+      position={position}
+      onClick={(e) => {
+        // Block click if too far
+        if (!isVisibleRef.current) return; 
+        e.stopPropagation();
+        onClick();
+      }}
+      onPointerOver={(e) => {
+        // Block hover if too far
+        if (!isVisibleRef.current) return; 
+        e.stopPropagation();
+        hoveredRef.current = true;
+        setHover(true);
+      }}
+      onPointerOut={() => {
+        hoveredRef.current = false;
+        setHover(false);
+      }}
+    >
+      <mesh ref={meshRef} scale={[size, size, 1]}>
+        <planeGeometry args={[2, 2]} />
+        <shaderMaterial 
+          args={[materialArgs]} 
+          transparent 
+          depthWrite={true} 
+        />
+      </mesh>
 
-    {hovered && (
-      <Billboard 
-        position={[0, 0, 0]}
-      >
-        <Text
-          fontSize={size * 0.22}
-          color="#ffffff"
-          anchorX="center"
-          anchorY="middle"
-          outlineWidth={size * 0.015}
-          outlineColor={color}
-          maxWidth={size * 1.2}
-          letterSpacing={0.02}
-        >
-          {hoverText}
-        </Text>
-      </Billboard>
-    )}
-  </group>
-);
+      {hovered && (
+        <Billboard position={[0, 0, 0]}>
+          <Text
+            fontSize={size * 0.22}
+            color="#ffffff"
+            anchorX="center"
+            anchorY="middle"
+            outlineWidth={size * 0.015}
+            outlineColor={color}
+            maxWidth={size * 1.2}
+            letterSpacing={0.02}
+          >
+            {hoverText}
+          </Text>
+        </Billboard>
+      )}
+    </group>
+  );
 }

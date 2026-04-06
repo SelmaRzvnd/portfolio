@@ -38,14 +38,14 @@ export default function NavigationOverlay({ onNavigate }) {
       <style>{`
         .hud-panel {
           position: absolute;
-          top: 1rem;
-          left: 1rem;
-          z-index: 500;
+          top: 2rem;
+          left: 2rem;
+          z-index: 1000;
           backdrop-filter: blur(3px);
           -webkit-backdrop-filter: blur(10px);
           border: 1px solid rgba(102, 220, 220, 0.59);
           border-radius: 16px;
-          padding: 1.1rem;
+          padding: 1.5rem;
           box-shadow: 0 0 20px rgba(12, 125, 238, 0.2);
           color: white;
           font-family: system-ui, -apple-system, sans-serif;
@@ -54,14 +54,14 @@ export default function NavigationOverlay({ onNavigate }) {
 
         .hud-name {
           margin: 0 0 0.25rem 0;
-          font-size: 1.1rem;
+          font-size: 1.5rem;
           font-weight: 700;
           letter-spacing: 0.5px;
         }
 
         .hud-prompt {
           margin: 0;
-          font-size: 0.7rem;
+          font-size: 1.1rem;
           color: rgba(255, 255, 255, 0.6);
           cursor: pointer;
           transition: all 0.3s ease;
@@ -96,7 +96,7 @@ export default function NavigationOverlay({ onNavigate }) {
           color: rgba(255, 255, 255, 0.7);
           text-align: left;
           padding: 0;
-          font-size: 0.6rem;
+          font-size: 0.9rem;
           cursor: pointer;
           transition: all 0.3s ease;
           position: relative;
