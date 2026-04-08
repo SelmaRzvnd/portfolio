@@ -19,6 +19,7 @@ import NavigationOverlay from "@/components/NavigationOverlay";
 import IntroOverlay from "@/components/IntroOverlay";
 import UIControls from "@/components/UIControls";
 import TransmissionPanel from "@/components/TransmissionPanel";
+import VoyagerDisk from "@/components/VoyagerDisc";
 
 function Stars({ shaderRef }) {
   const { positions, colors, brightnesses } = useMemo(() => {
@@ -211,7 +212,7 @@ export default function StarField() {
         </StarDome>
 
         <Star onClick={() => handlePlanetClick("about")} />
-          
+        <VoyagerDisk /> 
         <group>
           <Planet 
             position={[22, 8, 150]} 
