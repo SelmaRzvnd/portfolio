@@ -8,17 +8,13 @@ import * as THREE from "three";
 export default function Planet({ position, color = "#4f46e5", size = 5, hoverText = "Planet", onClick }) {
   const meshRef = useRef();
   
-  // React state for UI rendering
   const [hovered, setHover] = useState(false);
   
-  // Refs for logic inside the high-speed useFrame loop
   const hoveredRef = useRef(false);
   const isVisibleRef = useRef(true);
   
-  // Cache the position so we don't create a new Vector3 60 times a second
   const planetPos = useMemo(() => new THREE.Vector3(...position), [position]);
 
-  // Change cursor when hovering over an interactable planet
   useEffect(() => {
     document.body.style.cursor = hovered ? "pointer" : "auto";
     return () => { document.body.style.cursor = "auto"; };
@@ -108,17 +104,14 @@ export default function Planet({ position, color = "#4f46e5", size = 5, hoverTex
     const opacity = THREE.MathUtils.clamp(1 - dist / 150, 0, 1);
     meshRef.current.material.uniforms.uOpacity.value = opacity;
 
-    // Define interactive threshold (140 means it stops interacting just before fully invisible)
     const interactable = dist < 140;
     isVisibleRef.current = interactable;
 
-    // Force unhover if camera moves out of range while currently hovering
     if (!interactable && hoveredRef.current) {
       hoveredRef.current = false;
       setHover(false);
     }
 
-    // Apply hover glow uniform using the ref state
     meshRef.current.material.uniforms.uHover.value = THREE.MathUtils.lerp(
       meshRef.current.material.uniforms.uHover.value, 
       hoveredRef.current ? 1.0 : 0.0, 

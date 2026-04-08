@@ -1,66 +1,72 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, forwardRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
 
 export default function VoyagerDisc() {
+  const groupRef = useRef();
   const discRef = useRef();
-  const textRef = useRef();
-  const [open, setOpen] = useState(null);
+  const materialRef = useRef();
+  const linesRef = useRef();
 
-  useFrame((state, delta) => {
-    if (discRef.current) {
-      discRef.current.rotation.y -= delta * 0.25;
-      discRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.6) * 1.2;
-      if (discRef.current.material?.uniforms?.uTime) {
-        discRef.current.material.uniforms.uTime.value = state.clock.elapsedTime;
-      }
+  useFrame((state) => {
+    if (!groupRef.current) return;
+
+    const distance = state.camera.position.distanceTo(groupRef.current.position);
+
+    const targetOpacity = THREE.MathUtils.clamp(1 - distance / 200, 0, 1);
+
+    document.documentElement.style.setProperty(
+      "--voyager-fade",
+      targetOpacity.toString()
+    );
+
+    if (materialRef.current) {
+      materialRef.current.uniforms.uOpacity.value = targetOpacity;
+      materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
     }
-    if (textRef.current) {
-      textRef.current.rotation.y += delta * 0.1;
+
+    if (linesRef.current?.material) {
+      linesRef.current.material.opacity = targetOpacity * 0.6;
     }
+
+    // Move entire group (so everything sticks together)
+    groupRef.current.position.y =
+      Math.sin(state.clock.elapsedTime * 0.5) * 1.5;
   });
 
   return (
     <>
-      <group position={[0, 0, -250]}>
-        {/* Voyager Gold Disc */}
+      <group ref={groupRef} position={[0, 0, -200]}>
+        {/* Disc */}
         <mesh ref={discRef} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[10, 10, 0.15, 128, 1, false]} />
+          <cylinderGeometry args={[12, 12, 0.2, 128]} />
           <shaderMaterial
+            ref={materialRef}
+            transparent
             vertexShader={vertexShader}
             fragmentShader={fragmentShader}
             uniforms={{
               uColor: { value: new THREE.Color("#d4af37") },
               uTime: { value: 0 },
+              uOpacity: { value: 0 },
             }}
             side={THREE.DoubleSide}
           />
         </mesh>
 
-        {/* Engraved Voyager Lines */}
-        <VoyagerEngraving />
-
-        {/* Rotating quote text on the disc */}
-        <VoyagerQuoteText ref={textRef} />
-
-        {/* --- INTERACTIVE ZONES --- */}
-        <Zone y={5} label="MUSIC" onClick={() => setOpen("music")} />
-        <Zone y={0} label="QUOTES" onClick={() => setOpen("quotes")} />
-        <Zone y={-5} label="PHOTOS" onClick={() => setOpen("photos")} />
-
-        {/* --- PANELS (overlay HTML) --- */}
-        {open === "music" && <MusicPanel onClose={() => setOpen(null)} />}
-        {open === "quotes" && <QuotePanel onClose={() => setOpen(null)} />}
-        {open === "photos" && <PhotoPanel onClose={() => setOpen(null)} />}
+        <VoyagerEngraving linesRef={linesRef} />
+        <VoyagerQuoteText />
       </group>
+
+      <VoyagerStyles />
     </>
   );
 }
 
-/* ---------------- SHADER ---------------- */
+/* ---------------- SHADERS ---------------- */
 
 const vertexShader = `
   varying vec2 vUv;
@@ -74,48 +80,48 @@ const fragmentShader = `
   varying vec2 vUv;
   uniform vec3 uColor;
   uniform float uTime;
+  uniform float uOpacity;
 
   void main() {
     vec2 centered = vUv - 0.5;
     float r = length(centered);
     float angle = atan(centered.y, centered.x);
 
-    float grooves = smoothstep(0.0, 0.02, abs(sin(r * 800.0 + uTime * 0.5)));
-    vec3 gold = uColor * (0.6 + 0.4 * sin(angle * 4.0 + uTime * 0.2));
-    gold *= 0.8 + 0.2 * grooves;
+    float grooves = smoothstep(0.0, 0.03, abs(sin(r * 600.0 + uTime * 0.3)));
+    vec3 gold = uColor * (0.7 + 0.3 * sin(angle * 2.0 + uTime * 0.1));
+    gold *= 0.9 + 0.1 * grooves;
 
-    gl_FragColor = vec4(gold, 1.0);
+    gl_FragColor = vec4(gold, uOpacity);
   }
 `;
 
-/* ---------------- ENGRAVING LINES ---------------- */
+/* ---------------- ENGRAVING ---------------- */
 
-function VoyagerEngraving() {
+function VoyagerEngraving({ linesRef }) {
   const points = [];
-  for (let i = 0; i <= 12; i++) {
-    const angle = (i / 12) * Math.PI * 2;
-    points.push(new THREE.Vector3(0, 0, 0.11));
-    points.push(new THREE.Vector3(Math.cos(angle) * 6, Math.sin(angle) * 6, 0.11));
+  for (let i = 0; i <= 24; i++) {
+    const angle = (i / 24) * Math.PI * 2;
+    points.push(new THREE.Vector3(0, 0, 0.15));
+    points.push(new THREE.Vector3(Math.cos(angle) * 8, Math.sin(angle) * 8, 0.15));
   }
 
   return (
     <group rotation={[Math.PI / 2, 0, 0]}>
-      <lineSegments>
+      <lineSegments ref={linesRef}>
         <bufferGeometry attach="geometry" setFromPoints={points} />
-        <lineBasicMaterial color="#f5d98c" linewidth={1} />
+        <lineBasicMaterial color="#f5d98c" transparent opacity={0.6} />
       </lineSegments>
     </group>
   );
 }
 
-/* ---------------- QUOTE TEXT ON DISC (SDF / sprite text) ---------------- */
+/* ---------------- QUOTE ---------------- */
 
-function VoyagerQuoteText({ ref }) {
+const VoyagerQuoteText = forwardRef((props, ref) => {
   const quotes = [
-    "Somewhere, something incredible is waiting to be known. — Sagan",
-    "We are a way for the cosmos to know itself. — Sagan",
-    "Not all those who wander are lost. — Tolkien",
-    "The cosmos is within us. — Sagan",
+    "Somewhere, something incredible is waiting to be known.",
+    "We are a way for the cosmos to know itself.",
+    "The cosmos is within us. We are made of star-stuff.",
   ];
 
   const [index, setIndex] = useState(0);
@@ -123,232 +129,104 @@ function VoyagerQuoteText({ ref }) {
   useEffect(() => {
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % quotes.length);
-    }, 8000); // 8 seconds, as requested
-
+    }, 10000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <group position={[0, 0, 0.12]} ref={ref} rotation={[Math.PI / 2, 0, 0]}>
-      <Html center>
-        <div
-          style={{
-            fontFamily: "monospace",
-            fontSize: "0.3rem",
-            color: "#fff",
-            textShadow: "0 0 4px #f5d98c",
-            textAlign: "center",
-            width: "100%",
-            lineHeight: "1.1",
-          }}
-        >
-          {quotes[index]}
+    <group position={[0, 0.3, 0.2]} ref={ref}>
+      <Html
+        center
+        transform
+        distanceFactor={30}
+        wrapperClass="voyager-proximity-fade"
+      >
+        <div className="voyager-quote-container">
+          <div className="voyager-quote-box">
+            <div className="corner-tl" />
+            <div className="corner-br" />
+            <p>{quotes[index]}</p>
+          </div>
         </div>
       </Html>
     </group>
   );
-}
+});
 
-/* ---------------- INTERACTIVE ZONE LABELS ---------------- */
+VoyagerQuoteText.displayName = "VoyagerQuoteText";
 
-function Zone({ y, label, onClick }) {
-  return (
-    <mesh
-      position={[0, y, 0]}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick();
-      }}
-      onPointerOver={() => (document.body.style.cursor = "pointer")}
-      onPointerOut={() => (document.body.style.cursor = "auto")}
-    >
-      <circleGeometry args={[3, 32]} />
-      <meshBasicMaterial transparent opacity={0.001} />
-      <Html center>
-        <div
-          style={{
-            fontFamily: "monospace",
-            fontSize: "0.6rem",
-            color: "#DAA520",
-            textShadow: "0 0 4px #000",
-            textTransform: "uppercase",
-            letterSpacing: "0.1em",
-          }}
-        >
-          {label}
-        </div>
-      </Html>
-    </mesh>
-  );
-}
-
-/* ---------------- MUSIC PANEL (Spotify) ---------------- */
-
-function MusicPanel({ onClose }) {
-  return (
-    <Html center position={[0, -14, 0]}>
-      <div className="voyager-panel beautiful-panel">
-        <h3>MUSIC_ARCHIVE</h3>
-
-        {/* Spotify Embed: "Celestial – Birdy" */}
-        <div className="spotify-player">
-          <iframe
-            src="https://open.spotify.com/embed/track/1NW1Emgyr1Ah2hjbnW1qQ9?utm_source=generator"
-            width="100%"
-            height="80"
-            frameBorder="0"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy"
-          ></iframe>
-        </div>
-
-        <button className="voyager-close" onClick={onClose}>
-          close
-        </button>
-      </div>
-      <VoyagerStyles />
-    </Html>
-  );
-}
-
-/* ---------------- QUOTE PANEL (info only) ---------------- */
-
-function QuotePanel({ onClose }) {
-  return (
-    <Html center position={[0, -14, 0]}>
-      <div className="voyager-panel beautiful-panel">
-        <h3>QUOTE_STREAM INFO</h3>
-        <p style={{ fontSize: "0.8rem", margin: "6px 0" }}>
-          Quotes are encoded directly <br />
-          <span
-            style={{
-              color: "#DAA520",
-            }}
-          >
-            on the Voyager disc itself
-          </span>
-        </p>
-        <p style={{ fontSize: "0.7rem", opacity: 0.7, margin: "8px 0" }}>
-          Click anywhere on the canvas to close.
-        </p>
-        <button className="voyager-close" onClick={onClose}>
-          back to disc
-        </button>
-      </div>
-    </Html>
-  );
-}
-
-/* ---------------- PHOTO PANEL (stub with styling) ---------------- */
-
-function PhotoPanel({ onClose }) {
-  return (
-    <Html center position={[0, -14, 0]}>
-      <div className="voyager-panel beautiful-panel">
-        <h3>PHOTO_ARCHIVE</h3>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(70px, 1fr))",
-            gap: "6px",
-            width: "100%",
-            height: "160px",
-            overflowY: "auto",
-            padding: "4px 0",
-            borderRadius: "6px",
-          }}
-        >
-          {[...Array(8)].map((_, i) => (
-            <div
-              key={i}
-              style={{
-                height: "70px",
-                background: "#222",
-                borderRadius: "4px",
-                border: "1px solid rgba(218,165,32,0.3)",
-              }}
-            />
-          ))}
-        </div>
-        <button className="voyager-close" onClick={onClose}>
-          close
-        </button>
-      </div>
-    </Html>
-  );
-}
-
-/* ---------------- STYLES (shared + enhanced) ---------------- */
+/* ---------------- STYLES ---------------- */
 
 function VoyagerStyles() {
   return (
-    <style jsx>{`
-      .voyager-panel {
-        width: 320px;
-        background: rgba(10, 10, 15, 0.92);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(218, 165, 32, 0.5);
-        color: #fff;
-        padding: 20px;
-        border-radius: 12px;
-        font-family: monospace;
+    <style jsx global>{`
+      :root {
+        --voyager-fade: 0;
+        --voyager-gold: #e6b93f;
+      }
+
+      .voyager-proximity-fade {
+        opacity: var(--voyager-fade);
+        transform: scale(calc(0.9 + var(--voyager-fade) * 0.1));
+        transition: opacity 0.4s ease, transform 0.4s ease;
+        pointer-events: none;
+      }
+
+      .voyager-quote-container {
+        width: 270px;
+      }
+
+      .voyager-quote-box {
+        position: relative;
+        padding: 26px 28px;
         text-align: center;
-        animation: fadeIn 0.4s ease;
-      }
 
-      .beautiful-panel {
-        box-shadow: 0 0 20px rgba(218, 165, 32, 0.25);
-        border: 1px solid rgba(218, 165, 32, 0.6);
-      }
+        background: radial-gradient(
+          circle at center,
+          rgba(255, 230, 150, 0.18),
+          rgba(120, 90, 20, 0.25)
+        );
 
-      .voyager-panel h3 {
-        color: #d4af37;
-        margin-bottom: 10px;
-        font-size: 0.9rem;
-        letter-spacing: 0.1em;
-        text-shadow: 0 0 2px rgba(218, 165, 32, 0.5);
-      }
-
-      .voyager-panel p {
-        font-size: 0.8rem;
-        margin: 6px 0;
-      }
-
-      .voyager-close {
-        margin-top: 14px;
-        background: transparent;
-        border: 1px solid rgba(218, 165, 32, 0.45);
-        color: rgba(218, 165, 32, 0.95);
-        padding: 6px 14px;
-        font-size: 0.7rem;
-        cursor: pointer;
-        border-radius: 4px;
-        transition: 0.2s;
-        font-family: monospace;
-      }
-
-      .voyager-close:hover {
-        background: rgba(218, 165, 32, 0.15);
-        border-color: rgba(218, 165, 32, 0.85);
-        color: #ffd97d;
-      }
-
-      .spotify-player {
-        margin: 10px 0 16px 0;
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(230, 185, 63, 0.35);
         border-radius: 6px;
-        overflow: hidden;
-        border: 1px solid rgba(218, 165, 32, 0.3);
+
+        box-shadow:
+          0 0 25px rgba(230, 185, 63, 0.15),
+          inset 0 0 20px rgba(255, 220, 120, 0.08);
       }
 
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+      .voyager-quote-box p {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 1rem;
+        letter-spacing: 0.5px;
+        line-height: 1.6;
+        color: #fff3c4;
+
+        text-shadow:
+          0 0 6px rgba(245, 217, 140, 0.5),
+          0 0 18px rgba(230, 185, 63, 0.25);
+      }
+
+      .corner-tl {
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        width: 22px;
+        height: 22px;
+        border-top: 2px solid var(--voyager-gold);
+        border-left: 2px solid var(--voyager-gold);
+      }
+
+      .corner-br {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        width: 22px;
+        height: 22px;
+        border-bottom: 2px solid var(--voyager-gold);
+        border-right: 2px solid var(--voyager-gold);
       }
     `}</style>
   );
