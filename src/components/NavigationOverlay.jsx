@@ -7,125 +7,94 @@ export default function NavigationOverlay({ onNavigate }) {
   const panelRef = useRef(null);
 
   const navItems = [
-    { id: "about", label: "About" },
-    { id: "education", label: "Education" },
-    { id: "work", label: "Work" },
-    { id: "projects", label: "Projects" },
-    { id: "research", label: "Research" },
-    { id: "awards", label: "Awards" },
+    { id: "about", category: "entry", label: "profile" },
+    { id: "education", category: "trace", label: "foundations" },
+    { id: "work", category: "record", label: "experience" },
+    { id: "projects", category: "output", label: "creations" },
+    { id: "research", category: "inquiry", label: "analysis" },
+    { id: "awards", category: "merit", label: "recognition" },
   ];
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (panelRef.current && !panelRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
+    const handleMouseMove = (e) => {
+      if (!panelRef.current) return;
+      const x = (e.clientX - window.innerWidth / 2) / 150;
+      const y = (e.clientY - window.innerHeight / 2) / 150;
+      panelRef.current.style.setProperty('--mx', `${x}px`);
+      panelRef.current.style.setProperty('--my', `${y}px`);
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
-
-  const handleItemClick = (id) => {
-    onNavigate(id);
-    setIsOpen(false);
-  };
 
   return (
     <>
       <style>{`
-        .hud-panel {
-          position: absolute;
-          top: 2rem;
-          left: 2rem;
+        .minimal-panel {
+          position: fixed;
+          top: 1rem;
+          left: 1rem;
           z-index: 1000;
-          backdrop-filter: blur(3px);
-          -webkit-backdrop-filter: blur(10px);
-          border: 1px solid rgba(102, 220, 220, 0.59);
-          border-radius: 16px;
-          padding: 1.5rem;
-          box-shadow: 0 0 20px rgba(12, 125, 238, 0.2);
-          color: white;
-          font-family: system-ui, -apple-system, sans-serif;
-          min-width: 120px;
+          backdrop-filter: blur(1px);
+          border: 1.5px solid rgba(255, 255, 255, 0.12);
+          padding: 1.25rem;
+          color: #fff;
+          width: 190px;
+          /* The magic: transform uses the CSS variables set by the mouse move */
+          transform: translate3d(var(--mx, 0), var(--my, 0), 0);
+          transition: transform 0.1s ease-out, height 0.4s ease;
         }
 
-        .hud-name {
-          margin: 0 0 0.25rem 0;
-          font-size: 1.5rem;
-          font-weight: 700;
-          letter-spacing: 0.5px;
-        }
-
-        .hud-prompt {
-          margin: 0;
-          font-size: 1.1rem;
-          color: rgba(255, 255, 255, 0.6);
-          cursor: pointer;
-          transition: all 0.3s ease;
-          display: inline-block;
-        }
-
-        .hud-prompt:hover {
-          color: white;
-          text-shadow: 0 0 8px rgb(251, 255, 0);
-        }
-
-        .hud-menu {
-          display: flex;
-          flex-direction: column;
-          gap: 0.6rem;
-          overflow: hidden;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        .nav-list {
           max-height: 0;
+          overflow: hidden;
           opacity: 0;
-          margin-top: 0;
+          transition: all 0.5s cubic-bezier(0.2, 1, 0.2, 1);
+          border-top: 1px solid transparent;
         }
 
-        .hud-menu.open {
-          max-height: 300px;
+        .nav-list.expanded {
+          max-height: 400px;
           opacity: 1;
-          margin-top: 1.5rem;
+          margin-top: 1rem;
+          padding-top: 1rem;
+          border-top: 2px solid rgba(255, 255, 255, 0.1);
         }
 
-        .hud-nav-item {
+        .nav-btn {
+          display: flex;
+          align-items: center;
           background: none;
-          border: none;
-          color: rgba(255, 255, 255, 0.7);
-          text-align: left;
-          padding: 0;
-          font-size: 0.9rem;
+          color: rgba(255, 255, 255, 0.4);
+          padding: 0.3rem 0;
           cursor: pointer;
-          transition: all 0.3s ease;
-          position: relative;
+          font-family: monospace;
+          transition: 0.2s;
         }
 
-        .hud-nav-item:hover {
-          color: white;
-          text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-          transform: translateX(6px);
+        .nav-btn:hover {
+          color: #fff;
+          transform: translateX(8px);
         }
+
+        .category { font-size: 0.5rem; width: 60px; opacity: 0.5; }
+        .label { font-size: 0.7rem; letter-spacing: 0.05em; }
       `}</style>
 
-      <div className="hud-panel" ref={panelRef}>
-        <h1 className="hud-name">Selma Rezavand</h1>
-        <p 
-          className="hud-prompt" 
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? "Collapse universe ↑" : "Explore my universe!"}
-        </p>
+      <div className="minimal-panel" ref={panelRef}>
+        <div style={{ cursor: 'pointer' }} onClick={() => setIsOpen(!isOpen)}>
+          <div style={{ fontSize: '0.8rem', letterSpacing: '0.2em', fontWeight: 'bold' }}>SELMA REZAVAND</div>
+          <div style={{ fontSize: '0.5rem', opacity: 0.4, fontFamily: 'monospace' }}>
+             {isOpen ? "> DISCONNECT_SESSION" : "> INITIALIZE_UPLINK"}
+          </div>
+        </div>
 
-        <div className={`hud-menu ${isOpen ? "open" : ""}`}>
+        <div className={`nav-list ${isOpen ? "expanded" : ""}`}>
           {navItems.map((item) => (
-            <button
-              key={item.id}
-              className="hud-nav-item"
-              onClick={() => handleItemClick(item.id)}
-            >
-              {item.label}
+            <button key={item.id} className="nav-btn" onClick={() => onNavigate(item.id)}>
+              <span className="category">[{item.category}]</span>
+              <span className="label">{item.label}</span>
             </button>
           ))}
         </div>

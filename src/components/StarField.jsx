@@ -16,6 +16,9 @@ import AboutMe from "./content/AboutMe";
 import PlanetModal from "@/components/PlanetModal";
 import Star from "@/components/Star";
 import NavigationOverlay from "@/components/NavigationOverlay";
+import IntroOverlay from "@/components/IntroOverlay";
+import UIControls from "@/components/UIControls";
+import TransmissionPanel from "@/components/TransmissionPanel";
 
 function Stars({ shaderRef }) {
   const { positions, colors, brightnesses } = useMemo(() => {
@@ -90,7 +93,6 @@ function Stars({ shaderRef }) {
             gl_Position = projectionMatrix * mvPosition;
           }
         `}
-    
         fragmentShader={`
           varying vec3 vColor;
           varying float vBrightness;
@@ -102,27 +104,19 @@ function Stars({ shaderRef }) {
             float r = length(uv - vec2(0.5));
             if (r > 0.18) discard;
 
-            // 1. Calculate Shift
             float beta = clamp(uVelocity * 1.5, -0.9, 0.9);
             float shift = sqrt((1.0 + beta) / (1.0 - beta));
 
-            // 2. The Fix: We start with a base color of 1,1,1 for the shift calculation
-            // then apply the brightness later and prevent "pre-clipping."
             vec3 baseColor = vec3(1.0);
 
-            // 3. Apply the shift with "Channel Suppression"
-            // If shift > 1 (Redshift), we keep Red at 1.0 but CRUSH Green and Blue.
-            // If shift < 1 (Blueshift), we keep Blue at 1.0 but CRUSH Red and Green.
             vec3 shiftedColor;
             if (shift > 1.0) {
-                // Redshift: Red stays high, others fall away based on shift intensity
                 shiftedColor = vec3(
                     1.0, 
-                    pow(1.0 / shift, 2.0), // Squared suppression for more "color"
+                    pow(1.0 / shift, 2.0),
                     pow(1.0 / shift, 3.0) 
                 );
             } else {
-                // Blueshift: Blue stays high, others fall away
                 shiftedColor = vec3(
                     pow(shift, 3.0),
                     pow(shift, 2.0),
@@ -130,11 +124,8 @@ function Stars({ shaderRef }) {
                 );
             }
 
-            // 4. Apply the star's actual brightness and the movement "flare"
             float flare = 1.0 + abs(beta) * 3.0;
             vec3 finalCol = shiftedColor * vBrightness * flare;
-
-            // 5. Final Gamma Correction
             finalCol = pow(finalCol, vec3(1.0 / uGamma));
 
             gl_FragColor = vec4(finalCol, vBrightness);
@@ -153,9 +144,12 @@ function StarDome({ children, domeRef }) {
   );
 }
 
-
 export default function StarField() {
   const [modalData, setModalData] = useState({ isOpen: false, title: "", content: null });
+  
+  // App UI State overrides
+  const [isIntroOpen, setIsIntroOpen] = useState(true);
+  const [isTransmissionOpen, setIsTransmissionOpen] = useState(false);
 
   const planetSections = {
     education: { title: "Education", component: <Education /> },
@@ -186,7 +180,27 @@ export default function StarField() {
 
   return (
     <>
-    <NavigationOverlay onNavigate={handlePlanetClick} />
+      {/* Overlay UI Cluster */}
+      <UIControls 
+        onOpenIntro={() => setIsIntroOpen(true)} 
+        onOpenTransmission={() => setIsTransmissionOpen(true)} 
+      />
+
+      {/* Intro sequence */}
+      <IntroOverlay 
+        isOpen={isIntroOpen} 
+        onClose={() => setIsIntroOpen(false)} 
+      />
+
+      {/* Transmission Panel */}
+      <TransmissionPanel 
+        isOpen={isTransmissionOpen} 
+        onClose={() => setIsTransmissionOpen(false)} 
+      />
+
+      <NavigationOverlay onNavigate={handlePlanetClick} />
+      
+      {/* 3D Scene Container */}
       <Canvas
         dpr={typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1}
         camera={{ position: [0, 0, 300], fov: 75}}
@@ -199,51 +213,51 @@ export default function StarField() {
         <Star onClick={() => handlePlanetClick("about")} />
           
         <group>
-        <Planet 
-          position={[22, 8, 150]} 
-          color="#f97316"
-          size={14} 
-          hoverText="Education"
-          onClick={() => handlePlanetClick("education")} 
-        />
+          <Planet 
+            position={[22, 8, 150]} 
+            color="#f97316"
+            size={14} 
+            hoverText="Education"
+            onClick={() => handlePlanetClick("education")} 
+          />
 
-        <Planet 
-          position={[-25, -10, 110]} 
-          color="#ace6ee"
-          size={15} 
-          hoverText="Work"
-          onClick={() => handlePlanetClick("work")} 
-        />
+          <Planet 
+            position={[-25, -10, 110]} 
+            color="#ace6ee"
+            size={15} 
+            hoverText="Work"
+            onClick={() => handlePlanetClick("work")} 
+          />
 
-        <Planet 
-          position={[18, 15, 60]} 
-          color="#e484eb"
-          size={13} 
-          hoverText="Projects"
-          onClick={() => handlePlanetClick("projects")} 
-        />
+          <Planet 
+            position={[18, 15, 60]} 
+            color="#e484eb"
+            size={13} 
+            hoverText="Projects"
+            onClick={() => handlePlanetClick("projects")} 
+          />
 
-        <Planet 
-          position={[-15, -12, 0]} 
-          color="#56e694"
-          size={16} 
-          hoverText="Awards"
-          onClick={() => handlePlanetClick("awards")} 
-        />
+          <Planet 
+            position={[-15, -12, 0]} 
+            color="#56e694"
+            size={16} 
+            hoverText="Awards"
+            onClick={() => handlePlanetClick("awards")} 
+          />
 
-        <Planet 
-          position={[28, 5, -50]} 
-          color="#f43f5e"
-          size={14} 
-          hoverText="Research"
-          onClick={() => handlePlanetClick("research")} 
-        />
-      </group>
+          <Planet 
+            position={[28, 5, -50]} 
+            color="#f43f5e"
+            size={14} 
+            hoverText="Research"
+            onClick={() => handlePlanetClick("research")} 
+          />
+        </group>
 
         <CameraController 
           onVelocityUpdate={handleVelocity} 
           starDomeRef={starDomeRef} 
-          isPaused={modalData.isOpen}
+          isPaused={modalData.isOpen || isIntroOpen || isTransmissionOpen} // Optional: Pause controls if a modal is overlaying
         />
       </Canvas>
 
