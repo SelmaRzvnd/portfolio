@@ -1,7 +1,34 @@
 "use client";
 
+import { useState, useEffect } from "react";
+
 export default function PlanetModal({ isOpen, onClose, title, content, themeColor = "#ffffff", origin }) {
-  if (!isOpen) return null;
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  const [render, setRender] = useState(isOpen);
+  const [isClosing, setIsClosing] = useState(false);
+
+  // 1. Sync state during render to avoid the "sync setState in useEffect" warning
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
+    if (isOpen) {
+      setRender(true);
+      setIsClosing(false);
+    } else {
+      setIsClosing(true);
+    }
+  }
+
+  // 2. Use the effect ONLY for the asynchronous delay
+  useEffect(() => {
+    if (!isOpen && render) {
+      const timer = setTimeout(() => {
+        setRender(false);
+      }, 900);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, render]);
+
+  if (!render) return null;
 
   const centerX = typeof window !== "undefined" ? window.innerWidth / 2 : 0;
   const centerY = typeof window !== "undefined" ? window.innerHeight / 2 : 0;
@@ -18,6 +45,10 @@ export default function PlanetModal({ isOpen, onClose, title, content, themeColo
         @keyframes fadeIn {
           from { opacity: 0; backdrop-filter: blur(0px); }
           to { opacity: 1; backdrop-filter: blur(12px); }
+        }
+        @keyframes fadeOut {
+          from { opacity: 1; backdrop-filter: blur(12px); }
+          to { opacity: 0; backdrop-filter: blur(0px); }
         }
 
         @keyframes portalIn {
@@ -38,12 +69,37 @@ export default function PlanetModal({ isOpen, onClose, title, content, themeColo
           }
         }
 
-        .animate-backdrop {
-          animation: fadeIn 0.8s ease-out forwards;
+        @keyframes portalOut {
+          0% {
+            transform: translate(0px, 0px) scale(1);
+            opacity: 1;
+            filter: brightness(1) blur(0px);
+          }
+          30% {
+            transform: translate(0px, 0px) scale(1.05);
+            opacity: 1;
+            filter: brightness(1.2) blur(0px);
+          }
+          100% {
+            transform: translate(var(--tx), var(--ty)) scale(0);
+            opacity: 0;
+            filter: brightness(2) blur(10px);
+          }
         }
 
-        .animate-modal-core {
+        .animate-backdrop-in {
+          animation: fadeIn 0.8s ease-out forwards;
+        }
+        .animate-backdrop-out {
+          animation: fadeOut 0.8s ease-in forwards;
+        }
+
+        .animate-modal-in {
           animation: portalIn 0.9s cubic-bezier(0.46, 1, 0.3, 1) forwards;
+          transform-origin: center center;
+        }
+        .animate-modal-out {
+          animation: portalOut 0.9s cubic-bezier(0.46, 1, 0.3, 1) forwards;
           transform-origin: center center;
         }
 
@@ -52,10 +108,15 @@ export default function PlanetModal({ isOpen, onClose, title, content, themeColo
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
       `}</style>
 
-      <div className="absolute inset-0 bg-black/80 animate-backdrop" onClick={onClose} />
+      <div 
+        className={`absolute inset-0 bg-black/80 ${isClosing ? "animate-backdrop-out" : "animate-backdrop-in"}`} 
+        onClick={onClose} 
+      />
 
       <div
-        className="relative w-full max-w-2xl bg-[#050507]/90 backdrop-blur-3xl rounded-3xl p-10 text-white animate-modal-core"
+        className={`relative w-full max-w-2xl bg-[#050507]/90 backdrop-blur-3xl rounded-3xl p-10 text-white ${
+          isClosing ? "animate-modal-out" : "animate-modal-in"
+        }`}
         style={{
           "--tx": `${tx}px`,
           "--ty": `${ty}px`,
