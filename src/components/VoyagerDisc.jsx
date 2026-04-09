@@ -119,9 +119,62 @@ function VoyagerEngraving({ linesRef }) {
 
 const VoyagerQuoteText = forwardRef((props, ref) => {
   const quotes = [
-    "Somewhere, something incredible is waiting to be known.",
-    "We are a way for the cosmos to know itself.",
-    "The cosmos is within us. We are made of star-stuff.",
+    {
+      text: "Somewhere, something incredible is waiting to be known.",
+      author: "Carl Sagan",
+    },
+    {
+      text: "We are a way for the cosmos to know itself.",
+      author: "Carl Sagan",
+    },
+    {
+      text: "The cosmos is within us. We are made of star-stuff.",
+      author: "Carl Sagan",
+    },
+    {
+      text: "Not only is the universe stranger than we imagine, it is stranger than we can imagine.",
+      author: "Arthur Stanley Eddington",
+    },
+    {
+      text: "Equipped with his five senses, man explores the universe around him and calls the adventure Science.",
+      author: "Edwin Hubble",
+    },
+    {
+      text: "For small creatures such as we, the vastness is bearable only through love.",
+      author: "Carl Sagan",
+    },
+    {
+      text: "We are all in the gutter, but some of us are looking at the stars.",
+      author: "Oscar Wilde",
+    },
+    {
+      text: "The nitrogen in our DNA, the calcium in our teeth, the iron in our blood, the carbon in our apple pies were made in the interiors of collapsing stars.",
+      author: "Carl Sagan",
+    },
+    {
+      text: "Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.",
+      author: "Albert Einstein",
+    },
+    {
+      text: "We are stardust brought to life, then empowered by the universe to figure itself out—and we have only just begun.",
+      author: "Neil deGrasse Tyson",
+    },
+    {
+      text: "Across the sea of space, the stars are other suns.",
+      author: "Carl Sagan",
+    },
+    {
+      text: "The universe is under no obligation to make sense to you.",
+      author: "Neil deGrasse Tyson",
+    },
+    {
+      text: "Look up at the stars and not down at your feet.",
+      author: "Stephen Hawking",
+    },
+    {
+      text: "We are all made of stars.",
+      author: "Moby",
+    },
   ];
 
   const [index, setIndex] = useState(0);
@@ -145,13 +198,21 @@ const VoyagerQuoteText = forwardRef((props, ref) => {
           <div className="voyager-quote-box">
             <div className="corner-tl" />
             <div className="corner-br" />
-            <p>{quotes[index]}</p>
+
+            <p>
+              “{quotes[index].text}”
+              <br />
+              <span className="voyager-quote-author">
+                — {quotes[index].author}
+              </span>
+            </p>
           </div>
         </div>
       </Html>
     </group>
   );
 });
+
 
 VoyagerQuoteText.displayName = "VoyagerQuoteText";
 
@@ -228,6 +289,14 @@ function VoyagerStyles() {
         border-bottom: 2px solid var(--voyager-gold);
         border-right: 2px solid var(--voyager-gold);
       }
+      .voyager-quote-author {
+        display: block;
+        margin-top: 8px;
+        font-size: 0.85rem;
+        opacity: 0.85;
+        color: #ffe9a8;
+      }
+
     `}</style>
   );
 }
