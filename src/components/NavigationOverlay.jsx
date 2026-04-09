@@ -59,14 +59,14 @@ export default function NavigationOverlay({ onNavigate }) {
           opacity: 1;
           margin-top: 1rem;
           padding-top: 1rem;
-          border-top: 2px solid rgba(255, 255, 255, 0.1);
+          border-top: 2px solid rgba(255, 255, 255, 0.43);
         }
 
         .nav-btn {
           display: flex;
           align-items: center;
           background: none;
-          color: rgba(255, 255, 255, 0.4);
+          color: rgb(255, 255, 255);
           padding: 0.3rem 0;
           cursor: pointer;
           font-family: monospace;
