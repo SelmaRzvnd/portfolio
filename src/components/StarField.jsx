@@ -21,13 +21,12 @@ import UIControls from "@/components/UIControls";
 import TransmissionPanel from "@/components/TransmissionPanel";
 import VoyagerDisk from "@/components/VoyagerDisc";
 
-// ── Must match the position props you pass to each <Planet> below ──
 const PLANET_POSITIONS = {
-  education: [22,   8,   150],
-  work:      [-25, -10,  110],
-  projects:  [18,   15,  60],
-  awards:    [-15, -12,  0],
-  research:  [28,   5,  -50],
+  education: [22, 8, 150],
+  work: [-25, -10, 110],
+  projects: [18, 15, 60],
+  awards: [-15, -12, 0],
+  research: [28, 5, -50],
 };
 
 function Stars({ shaderRef, location }) {
@@ -136,7 +135,13 @@ function StarDome({ children, domeRef }) {
 }
 
 export default function StarField() {
-  const [modalData, setModalData] = useState({ isOpen: false, title: "", content: null });
+  const [modalData, setModalData] = useState({
+    isOpen: false,
+    title: "",
+    content: null,
+    color: "#b81717",
+    origin: null,
+  });
   const [isIntroOpen, setIsIntroOpen] = useState(true);
   const [isTransmissionOpen, setIsTransmissionOpen] = useState(false);
   const [location, setLocation] = useState({ lat: 49.2827, lng: -123.1207 });
@@ -151,23 +156,28 @@ export default function StarField() {
   }, []);
 
   const planetSections = {
-    education: { title: "Education",       component: <Education /> },
-    work:      { title: "Work Experience", component: <Work /> },
-    projects:  { title: "Projects",        component: <Projects /> },
-    awards:    { title: "Awards",          component: <Awards /> },
-    research:  { title: "Research",        component: <Research /> },
-    about:     { title: "About Me",        component: <AboutMe /> },
+    education: { title: "Education", component: <Education />, color: "#f97316" },
+    work: { title: "Work Experience", component: <Work />, color: "#ace6ee" },
+    projects: { title: "Projects", component: <Projects />, color: "#e484eb" },
+    awards: { title: "Awards", component: <Awards />, color: "#56e694" },
+    research: { title: "Research", component: <Research />, color: "#f43f5e" },
+    about: { title: "About Me", component: <AboutMe />, color: "#ffffff" },
   };
 
-  const handlePlanetClick = (type) => {
+  const handlePlanetClick = (type, origin) => {
     const section = planetSections[type];
-    setModalData({ isOpen: true, title: section.title, content: section.component });
+    setModalData({
+      isOpen: true,
+      title: section.title,
+      content: section.component,
+      color: section.color,
+      origin: origin ?? null,
+    });
   };
 
   const shaderRef = useRef();
   const starDomeRef = useRef();
 
-  // ── Travel ref: written outside Canvas, read inside CameraController ──
   const travelRef = useRef(null);
 
   const handleTravel = (id) => {
@@ -178,10 +188,9 @@ export default function StarField() {
 
     const [x, y, z] = PLANET_POSITIONS[id];
 
-    // Keep camera's current X/Y, just travel to the planet's Z + 30
     travelRef.current = {
-      target: new THREE.Vector3(0, 0, z + 20),  // ← x=0, y=0, only Z matters
-      onArrival: () => setTimeout(() => handlePlanetClick(id), 800),  // ← 800ms delay
+      target: new THREE.Vector3(0, 0, z + 20),
+      onArrival: () => setTimeout(() => handlePlanetClick(id), 800),
     };
   };
 
@@ -200,7 +209,6 @@ export default function StarField() {
 
       <TransmissionPanel isOpen={isTransmissionOpen} onClose={() => setIsTransmissionOpen(false)} />
 
-      {/* onTravel instead of onNavigate */}
       <NavigationOverlay onTravel={handleTravel} />
 
       <Canvas
@@ -216,11 +224,41 @@ export default function StarField() {
         <VoyagerDisk />
 
         <group>
-          <Planet position={PLANET_POSITIONS.education} color="#f97316" size={14} hoverText="Education" onClick={() => handlePlanetClick("education")} />
-          <Planet position={PLANET_POSITIONS.work}      color="#ace6ee" size={15} hoverText="Work"      onClick={() => handlePlanetClick("work")} />
-          <Planet position={PLANET_POSITIONS.projects}  color="#e484eb" size={13} hoverText="Projects"  onClick={() => handlePlanetClick("projects")} />
-          <Planet position={PLANET_POSITIONS.awards}    color="#56e694" size={16} hoverText="Awards"    onClick={() => handlePlanetClick("awards")} />
-          <Planet position={PLANET_POSITIONS.research}  color="#f43f5e" size={14} hoverText="Research"  onClick={() => handlePlanetClick("research")} />
+          <Planet
+            position={PLANET_POSITIONS.education}
+            color="#f97316"
+            size={14}
+            hoverText="Education"
+            onClick={(origin) => handlePlanetClick("education", origin)}
+          />
+          <Planet
+            position={PLANET_POSITIONS.work}
+            color="#ace6ee"
+            size={15}
+            hoverText="Work"
+            onClick={(origin) => handlePlanetClick("work", origin)}
+          />
+          <Planet
+            position={PLANET_POSITIONS.projects}
+            color="#e484eb"
+            size={13}
+            hoverText="Projects"
+            onClick={(origin) => handlePlanetClick("projects", origin)}
+          />
+          <Planet
+            position={PLANET_POSITIONS.awards}
+            color="#56e694"
+            size={16}
+            hoverText="Awards"
+            onClick={(origin) => handlePlanetClick("awards", origin)}
+          />
+          <Planet
+            position={PLANET_POSITIONS.research}
+            color="#f43f5e"
+            size={14}
+            hoverText="Research"
+            onClick={(origin) => handlePlanetClick("research", origin)}
+          />
         </group>
 
         <CameraController
@@ -233,9 +271,11 @@ export default function StarField() {
 
       <PlanetModal
         isOpen={modalData.isOpen}
-        onClose={() => setModalData(prev => ({ ...prev, isOpen: false }))}
+        onClose={() => setModalData((prev) => ({ ...prev, isOpen: false }))}
         title={modalData.title}
         content={modalData.content}
+        themeColor={modalData.color}
+        origin={modalData.origin}
       />
     </>
   );

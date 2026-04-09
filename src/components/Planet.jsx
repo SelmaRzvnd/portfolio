@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useMemo, useState, useEffect } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
 
@@ -64,10 +64,50 @@ function HoverLabel({ text, color }) {
             boxShadow: `0 0 25px ${color}40, inset 0 0 15px ${color}10`,
           }}
         >
-          <span style={{ position: "absolute", top: -2, left: -2, width: 8, height: 8, borderTop: `2px solid ${color}`, borderLeft: `2px solid ${color}` }} />
-          <span style={{ position: "absolute", bottom: -2, right: -2, width: 8, height: 8, borderBottom: `2px solid ${color}`, borderRight: `2px solid ${color}` }} />
-          <span style={{ position: "absolute", top: -2, right: -2, width: 8, height: 8, borderTop: `2px solid ${color}66`, borderRight: `2px solid ${color}66` }} />
-          <span style={{ position: "absolute", bottom: -2, left: -2, width: 8, height: 8, borderBottom: `2px solid ${color}66`, borderLeft: `2px solid ${color}66` }} />
+          <span
+            style={{
+              position: "absolute",
+              top: -2,
+              left: -2,
+              width: 8,
+              height: 8,
+              borderTop: `2px solid ${color}`,
+              borderLeft: `2px solid ${color}`,
+            }}
+          />
+          <span
+            style={{
+              position: "absolute",
+              bottom: -2,
+              right: -2,
+              width: 8,
+              height: 8,
+              borderBottom: `2px solid ${color}`,
+              borderRight: `2px solid ${color}`,
+            }}
+          />
+          <span
+            style={{
+              position: "absolute",
+              top: -2,
+              right: -2,
+              width: 8,
+              height: 8,
+              borderTop: `2px solid ${color}66`,
+              borderRight: `2px solid ${color}66`,
+            }}
+          />
+          <span
+            style={{
+              position: "absolute",
+              bottom: -2,
+              left: -2,
+              width: 8,
+              height: 8,
+              borderBottom: `2px solid ${color}66`,
+              borderLeft: `2px solid ${color}66`,
+            }}
+          />
           <span style={{ color, marginRight: "8px", opacity: 0.8 }}>◈</span>
           {text}
         </div>
@@ -151,10 +191,13 @@ export default function Planet({ position, color = "#4f46e5", size = 5, hoverTex
   const isVisibleRef = useRef(true);
   const hoverProgress = useRef(0);
   const planetPos = useMemo(() => new THREE.Vector3(...position), [position]);
+  const { camera, size: viewport } = useThree();
 
   useEffect(() => {
     document.body.style.cursor = hovered ? "pointer" : "auto";
-    return () => { document.body.style.cursor = "auto"; };
+    return () => {
+      document.body.style.cursor = "auto";
+    };
   }, [hovered]);
 
   const materialArgs = useMemo(() => {
@@ -228,6 +271,15 @@ export default function Planet({ position, color = "#4f46e5", size = 5, hoverTex
     };
   }, [color]);
 
+  const getScreenPosition = () => {
+    const vector = planetPos.clone().project(camera);
+
+    return {
+      x: (vector.x * 0.5 + 0.5) * viewport.width,
+      y: (1 - (vector.y * 0.5 + 0.5)) * viewport.height,
+    };
+  };
+
   useFrame((state) => {
     if (!meshRef.current) return;
 
@@ -246,7 +298,6 @@ export default function Planet({ position, color = "#4f46e5", size = 5, hoverTex
       setHover(false);
     }
 
-    // Proximity label — only update state when crossing the threshold
     const isNearby = dist < NEARBY_THRESHOLD;
     if (isNearby !== nearbyRef.current) {
       nearbyRef.current = isNearby;
@@ -264,7 +315,7 @@ export default function Planet({ position, color = "#4f46e5", size = 5, hoverTex
       onClick={(e) => {
         if (!isVisibleRef.current) return;
         e.stopPropagation();
-        onClick();
+        onClick?.(getScreenPosition());
       }}
       onPointerOver={(e) => {
         if (!isVisibleRef.current) return;
@@ -284,9 +335,7 @@ export default function Planet({ position, color = "#4f46e5", size = 5, hoverTex
 
       <OrbitRing size={size} color={color} hoverProgress={hoverProgress} />
 
-      {(hovered || nearby) && (
-        <HoverLabel text={hoverText} color={color} size={size} />
-      )}
+      {(hovered || nearby) && <HoverLabel text={hoverText} color={color} size={size} />}
     </group>
   );
 }
