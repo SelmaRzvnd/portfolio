@@ -30,7 +30,7 @@ export default function CameraController({ isPaused, onVelocityUpdate, starDomeR
     const touchY = e.touches[0].clientY;
     const deltaY = lastTouchY.current - touchY;
 
-    velocity.current += deltaY * 0.0005;
+    velocity.current += deltaY * 0.001;
 
     lastTouchY.current = touchY;
     };

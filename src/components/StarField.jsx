@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
 import starData from "@/data/stars.json";
-import { getHorizontalCoords, getVancouverLST } from "@/utils/astroMath";
+import { getHorizontalCoords, getLocalLST } from "@/utils/astroMath";
 import CameraController from "@/components/CameraController";
 import Planet from "@/components/Planet";
 import Education from "./content/Education";
@@ -21,14 +21,17 @@ import UIControls from "@/components/UIControls";
 import TransmissionPanel from "@/components/TransmissionPanel";
 import VoyagerDisk from "@/components/VoyagerDisc";
 
-function Stars({ shaderRef }) {
+function Stars({ shaderRef, location }) {
   const { positions, colors, brightnesses } = useMemo(() => {
     const pos = [];
     const col = [];
     const bright = [];
     const colorObj = new THREE.Color();
-    const lst = getVancouverLST();
-    const lat = 49.2827;
+    
+    // Pass the user's longitude to get the accurate Local Sidereal Time
+    const lst = getLocalLST(new Date(), location.lng);
+    const lat = location.lat;
+    
     const magRef = 0.0; 
     const exposureFactor = 20.0;
 
@@ -50,7 +53,7 @@ function Stars({ shaderRef }) {
       colors: new Float32Array(col),
       brightnesses: new Float32Array(bright),
     };
-  }, []);
+  }, [location]); // Recompute when location updates
 
   return (
     <points renderOrder={999} raycast={() => null}>
@@ -152,6 +155,27 @@ export default function StarField() {
   const [isIntroOpen, setIsIntroOpen] = useState(true);
   const [isTransmissionOpen, setIsTransmissionOpen] = useState(false);
 
+  // User location state (defaults to Vancouver)
+  const [location, setLocation] = useState({ lat: 49.2827, lng: -123.1207 });
+
+  useEffect(() => {
+    // Request geolocation if supported by the browser
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          // If the user denies access or it fails, it naturally falls back to Vancouver
+          console.warn("Geolocation access denied or failed. Defaulting to Vancouver.", error);
+        }
+      );
+    }
+  }, []);
+
   const planetSections = {
     education: { title: "Education", component: <Education /> },
     work: { title: "Work Experience", component: <Work /> },
@@ -208,7 +232,7 @@ export default function StarField() {
         gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
       >
         <StarDome domeRef={starDomeRef}>
-          <Stars shaderRef={shaderRef} />
+          <Stars shaderRef={shaderRef} location={location} />
         </StarDome>
 
         <Star onClick={() => handlePlanetClick("about")} />
@@ -258,7 +282,7 @@ export default function StarField() {
         <CameraController 
           onVelocityUpdate={handleVelocity} 
           starDomeRef={starDomeRef} 
-          isPaused={modalData.isOpen || isIntroOpen || isTransmissionOpen} // Optional: Pause controls if a modal is overlaying
+          isPaused={modalData.isOpen || isIntroOpen || isTransmissionOpen} 
         />
       </Canvas>
 

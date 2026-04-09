@@ -10,7 +10,7 @@ export const getJulianDate = (date = new Date()) => {
   return date.getTime() / 86400000 + 2440587.5;
 };
 
-export const getVancouverLST = (date = new Date()) => {
+export const getLocalLST = (date = new Date(), longitudeDeg = -123.1207) => {
   const jd = getJulianDate(date);
   const T = (jd - 2451545.0) / 36525.0;
 
@@ -22,8 +22,7 @@ export const getVancouverLST = (date = new Date()) => {
 
   gmstDeg = ((gmstDeg % 360) + 360) % 360;
 
-  const vancouverLongitudeDeg = -123.1207;
-  const lstDeg = gmstDeg + vancouverLongitudeDeg;
+  const lstDeg = gmstDeg + longitudeDeg;
 
   return wrap24(lstDeg / 15);
 };
