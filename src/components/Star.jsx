@@ -2,9 +2,100 @@
 
 import { useRef, useMemo, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Text, Billboard } from "@react-three/drei";
+import { Html } from "@react-three/drei"; // Added Html import
 import * as THREE from "three";
 
+/* ─── Star Hover Label ───────────────────────────────────────────────── */
+function StarLabel({ text, visible }) {
+  const starColor = "#ffcc00"; // Intense Gold/Yellow
+  const accentColor = "#ff4d00"; // Plasma Orange/Red
+
+  const finalTransform = visible
+    ? "translate(-50%, -50%) scale(1)"
+    : "translate(-50%, -50%) scale(0.9) translateY(10px)";
+
+  return (
+    <Html
+      center
+      distanceFactor={80} // Adjusted for the larger star size
+      zIndexRange={[100, 0]}
+      style={{ pointerEvents: "none" }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          opacity: visible ? 1 : 0,
+          transform: finalTransform,
+          transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+        }}
+      >
+        {/* Solar Flare Connector */}
+        <div
+          style={{
+            width: "2px",
+            height: "25px",
+            background: `linear-gradient(to bottom, transparent, ${starColor}, ${accentColor})`,
+            boxShadow: `0 0 15px ${accentColor}`,
+            opacity: 0.8,
+            marginBottom: "10px"
+          }}
+        />
+
+        {/* Main Label Box */}
+        <div
+          style={{
+            position: "relative",
+            padding: "10px 24px",
+            fontFamily: "'Courier New', monospace",
+            fontSize: "18px", // Larger for the Star
+            fontWeight: 800,
+            letterSpacing: "0.25em",
+            textTransform: "uppercase",
+            color: "#fff",
+            background: "rgba(15, 5, 0, 0.95)", // Very dark red-black
+            border: `1px solid ${accentColor}aa`,
+            backdropFilter: "blur(10px)",
+            whiteSpace: "nowrap",
+            // Intense heat glow
+            boxShadow: `0 0 35px ${accentColor}60, inset 0 0 20px ${accentColor}20`,
+          }}
+        >
+          {/* Heat Brackets */}
+          <span style={{
+            position: "absolute", top: -3, left: -3, width: 12, height: 12,
+            borderTop: `3px solid ${starColor}`, borderLeft: `3px solid ${starColor}`
+          }} />
+          <span style={{
+            position: "absolute", bottom: -3, right: -3, width: 12, height: 12,
+            borderBottom: `3px solid ${starColor}`, borderRight: `3px solid ${starColor}`
+          }} />
+
+          <span style={{ color: starColor, marginRight: "12px", textShadow: `0 0 10px ${starColor}` }}>☀</span>
+          {text}
+        </div>
+
+        <div style={{
+          marginTop: "8px",
+          fontSize: "10px",
+          fontFamily: "'Courier New', monospace",
+          letterSpacing: "0.2em",
+          color: "rgba(0, 0, 0, 0.8)",
+          opacity: 0.8,
+          textShadow: `0 0 5px ${starColor}`
+        }}>
+          [ INITIATE CORE ACCESS ]
+        </div>
+      </div>
+    </Html>
+  );
+}
+
+/* ─── Main Star Component ────────────────────────────────────────────── */
 export default function Star({ position = [0, -35, 200], onClick = () => {} }) {
   const meshRef = useRef();
   const [hovered, setHover] = useState(false);
@@ -106,40 +197,23 @@ export default function Star({ position = [0, -35, 200], onClick = () => {} }) {
         vec2 disc = vUv * 2.0 - 1.0;
         float r = length(disc);
         if (r > 1.0) discard;
-
         float depth = sqrt(max(0.0, 1.0 - r * r));
-
-        // --- PHOTOSPHERE (granulation zone, r < 0.72) ---
         float limb = mix(0.45, 1.0, pow(depth, 0.75));
-
         float plasma = fbm(vPosition * 0.3 + uTime * 0.12) * 0.5 + 0.5;
         float cells  = granulation(disc, uTime);
         float combined = plasma * 0.6 + cells * 0.4;
-
         vec3 cDark   = vec3(0.80, 0.18, 0.00);
         vec3 cMid    = vec3(1.00, 0.55, 0.05);
         vec3 cBright = vec3(1.00, 0.95, 0.70);
-
         vec3 photoColor = combined < 0.5
           ? mix(cDark, cMid, combined * 2.0)
           : mix(cMid, cBright, (combined - 0.5) * 2.0);
         photoColor *= limb;
-
-        // --- CORONA (smooth glow zone, r > 0.72) ---
-        // Warm yellow-orange, no texture, just smooth brightness falloff
         vec3 coronaColor = vec3(1.0, 0.65, 0.1);
-
-        // --- BLEND at the photosphere boundary ---
-        // Transition over a narrow band (0.68 → 0.76) so the seam is invisible
         float blend = smoothstep(0.68, 0.76, r);
         vec3 color = mix(photoColor, coronaColor, blend);
-
         color += uHover * 0.2;
-
-        // Alpha: fully opaque through the photosphere, 
-        // then fades out through the corona zone
         float alpha = smoothstep(1.0, 0.70, r);
-
         gl_FragColor = vec4(color, alpha);
       }
     `,
@@ -174,23 +248,7 @@ export default function Star({ position = [0, -35, 200], onClick = () => {} }) {
         />
       </mesh>
 
-      {hovered && (
-        <Billboard
-          position={[0, 0, 1]}
-          followCamera={true}
-        >
-          <Text
-            fontSize={size * 0.22}
-            color="#080808"
-            anchorX="center"
-            anchorY="middle"
-            outlineWidth={size * 0.005}
-            outlineColor="#ff1e00"
-          >
-            {hoverText}
-          </Text>
-        </Billboard>
-      )}
+      <StarLabel text={hoverText} visible={hovered} />
     </group>
   );
 }
