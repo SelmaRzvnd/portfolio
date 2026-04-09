@@ -1,47 +1,78 @@
+const awards = [
+  {
+    icon: "🔬",
+    title: "Erich Vogt First Year Summer Research Experience (FYSRE)",
+    subtitle: "University of British Columbia",
+    year: "Summer 2026",
+    desc: "Competitive research program providing first-year students hands-on experience in physics & astronomy.",
+    accent: "#a78bfa", // violet
+  },
+  {
+    icon: "🌎",
+    title: "Outstanding International Student Award",
+    subtitle: "University of British Columbia",
+    year: "Sep 2025",
+    desc: "Merit-based entrance scholarship for exceptional academic achievement and leadership potential.",
+    accent: "#60a5fa", // blue
+  },
+  {
+    icon: "🥇",
+    title: "Gold Medal — 19th National Astronomy & Astrophysics Olympiad",
+    subtitle: "Young Scholars Club, Tehran, Iran",
+    year: "Sep 2023",
+    accent: "#d4af37", // gold
+  },
+  {
+    icon: "🥉",
+    title: "Bronze Medal — 18th National Astronomy & Astrophysics Olympiad",
+    subtitle: "Young Scholars Club, Tehran, Iran",
+    year: "Sep 2022",
+    accent: "#fb923c", // orange
+  },
+];
+
 export default function Awards() {
   return (
-    <div className="space-y-4">
-
-      <div className="flex items-center gap-4 bg-white/5 p-4 rounded-lg border-l-4 border-purple-400">
-        <span className="text-3xl">🔬</span>
-        <div>
-          <h3 className="font-bold">Erich Vogt First Year Summer Research Experience (FYSRE)</h3>
-          <p className="text-sm opacity-80">
-            Competitive research program providing first‑year students hands‑on experience in physics & astronomy.
-          </p>
+    <div className="space-y-3">
+      {awards.map((a) => (
+        <div
+          key={a.title}
+          style={{
+            display: "flex",
+            gap: "1rem",
+            alignItems: "flex-start",
+            padding: "1rem 1.1rem",
+            borderRadius: "8px",
+            background: "rgba(255,255,255,0.03)",
+            border: "1px solid rgba(255,255,255,0.07)",
+            borderLeft: `3px solid ${a.accent}`,
+            transition: "background 0.2s",
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+          onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.03)"}
+        >
+          <span style={{ fontSize: "1.5rem", lineHeight: 1, marginTop: "0.1rem", flexShrink: 0 }}>{a.icon}</span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem", flexWrap: "wrap" }}>
+              <h3 style={{ fontWeight: 700, fontSize: "0.9rem", color: "#fff", lineHeight: 1.3 }}>{a.title}</h3>
+              <span style={{
+                flexShrink: 0,
+                fontSize: "0.65rem",
+                fontFamily: "monospace",
+                letterSpacing: "0.1em",
+                color: a.accent,
+                opacity: 0.9,
+                background: `${a.accent}18`,
+                padding: "0.15rem 0.5rem",
+                borderRadius: "3px",
+                border: `1px solid ${a.accent}40`,
+              }}>{a.year}</span>
+            </div>
+            <p style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.45)", fontFamily: "monospace", letterSpacing: "0.05em", margin: "0.2rem 0 0.35rem" }}>{a.subtitle}</p>
+            <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>{a.desc}</p>
+          </div>
         </div>
-      </div>
-
-      <div className="flex items-center gap-4 bg-white/5 p-4 rounded-lg border-l-4 border-blue-400">
-        <span className="text-3xl">🌎</span>
-        <div>
-          <h3 className="font-bold">Outstanding International Student Award</h3>
-          <p className="text-sm opacity-80">
-            UBC merit‑based entrance scholarship for academic excellence and leadership.
-          </p>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-4 bg-gradient-to-r from-yellow-500/20 to-transparent p-4 rounded-lg border-l-4 border-yellow-500">
-        <span className="text-3xl">🥇</span>
-        <div>
-          <h3 className="font-bold">Gold Medal — National Astronomy Olympiad</h3>
-          <p className="text-sm opacity-80">
-            Top 10 nationwide; highest team score in Stellar Astrophysics & Cosmology.
-          </p>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-4 bg-white/5 p-4 rounded-lg border-l-4 border-orange-400">
-        <span className="text-3xl">🥉</span>
-        <div>
-          <h3 className="font-bold">Bronze Medal — National Astronomy Olympiad</h3>
-          <p className="text-sm opacity-80">
-            Awarded for outstanding performance in theoretical and observational rounds.
-          </p>
-        </div>
-      </div>
-
+      ))}
     </div>
   );
 }
