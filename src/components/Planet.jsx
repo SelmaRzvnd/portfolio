@@ -5,6 +5,8 @@ import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
 
+const NEARBY_THRESHOLD = 60;
+
 function HoverLabel({ text, color }) {
   const [visible, setVisible] = useState(false);
 
@@ -18,12 +20,7 @@ function HoverLabel({ text, color }) {
     : "translate(-50%, -50%) translateY(8px)";
 
   return (
-    <Html
-      center
-      distanceFactor={60}
-      zIndexRange={[100, 0]}
-      style={{ pointerEvents: "none" }}
-    >
+    <Html center distanceFactor={60} zIndexRange={[100, 0]} style={{ pointerEvents: "none" }}>
       <div
         style={{
           position: "absolute",
@@ -32,7 +29,7 @@ function HoverLabel({ text, color }) {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center", 
+          justifyContent: "center",
           gap: "8px",
           opacity: visible ? 1 : 0,
           transform: finalTransform,
@@ -41,7 +38,6 @@ function HoverLabel({ text, color }) {
           height: "max-content",
         }}
       >
-        {/* Connector line - kept relative to text, pointing upwards */}
         <div
           style={{
             width: "1px",
@@ -51,7 +47,6 @@ function HoverLabel({ text, color }) {
           }}
         />
 
-        {/* Main label */}
         <div
           style={{
             position: "relative",
@@ -64,69 +59,26 @@ function HoverLabel({ text, color }) {
             color: "#fff",
             background: "rgba(5, 8, 20, 0.92)",
             border: `1px solid ${color}66`,
-            backdropFilter: "blur(8px)", 
+            backdropFilter: "blur(8px)",
             whiteSpace: "nowrap",
             boxShadow: `0 0 25px ${color}40, inset 0 0 15px ${color}10`,
           }}
         >
-          {/* Corner brackets */}
-          <span
-            style={{
-              position: "absolute",
-              top: -2,
-              left: -2,
-              width: 8,
-              height: 8,
-              borderTop: `2px solid ${color}`,
-              borderLeft: `2px solid ${color}`,
-            }}
-          />
-          <span
-            style={{
-              position: "absolute",
-              bottom: -2,
-              right: -2,
-              width: 8,
-              height: 8,
-              borderBottom: `2px solid ${color}`,
-              borderRight: `2px solid ${color}`,
-            }}
-          />
-          <span
-            style={{
-              position: "absolute",
-              top: -2,
-              right: -2,
-              width: 8,
-              height: 8,
-              borderTop: `2px solid ${color}66`,
-              borderRight: `2px solid ${color}66`,
-            }}
-          />
-          <span
-            style={{
-              position: "absolute",
-              bottom: -2,
-              left: -2,
-              width: 8,
-              height: 8,
-              borderBottom: `2px solid ${color}66`,
-              borderLeft: `2px solid ${color}66`,
-            }}
-          />
-
+          <span style={{ position: "absolute", top: -2, left: -2, width: 8, height: 8, borderTop: `2px solid ${color}`, borderLeft: `2px solid ${color}` }} />
+          <span style={{ position: "absolute", bottom: -2, right: -2, width: 8, height: 8, borderBottom: `2px solid ${color}`, borderRight: `2px solid ${color}` }} />
+          <span style={{ position: "absolute", top: -2, right: -2, width: 8, height: 8, borderTop: `2px solid ${color}66`, borderRight: `2px solid ${color}66` }} />
+          <span style={{ position: "absolute", bottom: -2, left: -2, width: 8, height: 8, borderBottom: `2px solid ${color}66`, borderLeft: `2px solid ${color}66` }} />
           <span style={{ color, marginRight: "8px", opacity: 0.8 }}>◈</span>
           {text}
         </div>
 
-        {/* Subtle subtitle line */}
         <div
           style={{
             fontSize: "9px",
             fontFamily: "'Courier New', monospace",
             letterSpacing: "0.18em",
-            color: `${color}`,
-            opacity: 0.6, 
+            color: color,
+            opacity: 0.6,
             textTransform: "uppercase",
           }}
         >
@@ -137,12 +89,11 @@ function HoverLabel({ text, color }) {
   );
 }
 
-/* ─── Orbit Ring (3D) ─────────────────────────────────────────────────── */
 function OrbitRing({ size, color, hoverProgress }) {
   const ringRef = useRef();
   const outerRef = useRef();
 
-  useFrame((state) => {
+  useFrame(() => {
     if (ringRef.current) {
       ringRef.current.rotation.z += 0.004;
       ringRef.current.material.opacity = hoverProgress.current * 0.7;
@@ -155,11 +106,10 @@ function OrbitRing({ size, color, hoverProgress }) {
 
   const innerPoints = useMemo(() => {
     const pts = [];
-    const segs = 80;
     const r = size * 1.28;
     const gap = 0.18;
-    for (let i = 0; i <= segs; i++) {
-      const a = (i / segs) * Math.PI * 2;
+    for (let i = 0; i <= 80; i++) {
+      const a = (i / 80) * Math.PI * 2;
       if (a > 0.3 && a < 0.3 + gap) continue;
       if (a > Math.PI + 0.1 && a < Math.PI + 0.1 + gap * 0.6) continue;
       pts.push(new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r, 0));
@@ -169,10 +119,9 @@ function OrbitRing({ size, color, hoverProgress }) {
 
   const outerPoints = useMemo(() => {
     const pts = [];
-    const segs = 60;
     const r = size * 1.52;
-    for (let i = 0; i <= segs; i++) {
-      const a = (i / segs) * Math.PI * 2;
+    for (let i = 0; i <= 60; i++) {
+      const a = (i / 60) * Math.PI * 2;
       if (a > 1.0 && a < 1.4) continue;
       pts.push(new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r, 0));
     }
@@ -193,11 +142,12 @@ function OrbitRing({ size, color, hoverProgress }) {
   );
 }
 
-/* ─── Planet ──────────────────────────────────────────────────────────── */
 export default function Planet({ position, color = "#4f46e5", size = 5, hoverText = "Planet", onClick }) {
   const meshRef = useRef();
   const [hovered, setHover] = useState(false);
+  const [nearby, setNearby] = useState(false);
   const hoveredRef = useRef(false);
+  const nearbyRef = useRef(false);
   const isVisibleRef = useRef(true);
   const hoverProgress = useRef(0);
   const planetPos = useMemo(() => new THREE.Vector3(...position), [position]);
@@ -269,7 +219,6 @@ export default function Planet({ position, color = "#4f46e5", size = 5, hoverTex
           vec3 finalColor = col*(diff*0.8+0.3)+(rim*0.4);
           finalColor += uHover*0.18;
 
-          // Hover edge glow
           float edgeGlow = pow(1.0-r,0.4)*uHover*0.35;
           finalColor += uColor*edgeGlow;
 
@@ -295,6 +244,13 @@ export default function Planet({ position, color = "#4f46e5", size = 5, hoverTex
     if (!interactable && hoveredRef.current) {
       hoveredRef.current = false;
       setHover(false);
+    }
+
+    // Proximity label — only update state when crossing the threshold
+    const isNearby = dist < NEARBY_THRESHOLD;
+    if (isNearby !== nearbyRef.current) {
+      nearbyRef.current = isNearby;
+      setNearby(isNearby);
     }
 
     const targetHover = hoveredRef.current ? 1.0 : 0.0;
@@ -328,7 +284,7 @@ export default function Planet({ position, color = "#4f46e5", size = 5, hoverTex
 
       <OrbitRing size={size} color={color} hoverProgress={hoverProgress} />
 
-      {hovered && (
+      {(hovered || nearby) && (
         <HoverLabel text={hoverText} color={color} size={size} />
       )}
     </group>

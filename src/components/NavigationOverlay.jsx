@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 
-export default function NavigationOverlay({ onNavigate }) {
+export default function NavigationOverlay({ onTravel }) {  // ← was onNavigate
   const [isOpen, setIsOpen] = useState(false);
   const panelRef = useRef(null);
 
@@ -41,7 +41,6 @@ export default function NavigationOverlay({ onNavigate }) {
           padding: 1.25rem;
           color: #fff;
           width: 190px;
-          /* The magic: transform uses the CSS variables set by the mouse move */
           transform: translate3d(var(--mx, 0), var(--my, 0), 0);
           transition: transform 0.1s ease-out, height 0.4s ease;
         }
@@ -66,11 +65,13 @@ export default function NavigationOverlay({ onNavigate }) {
           display: flex;
           align-items: center;
           background: none;
+          border: none;
           color: rgb(255, 255, 255);
           padding: 0.3rem 0;
           cursor: pointer;
           font-family: monospace;
           transition: 0.2s;
+          width: 100%;
         }
 
         .nav-btn:hover {
@@ -86,13 +87,20 @@ export default function NavigationOverlay({ onNavigate }) {
         <div style={{ cursor: 'pointer' }} onClick={() => setIsOpen(!isOpen)}>
           <div style={{ fontSize: '0.8rem', letterSpacing: '0.2em', fontWeight: 'bold' }}>SELMA REZAVAND</div>
           <div style={{ fontSize: '0.5rem', opacity: 0.4, fontFamily: 'monospace' }}>
-             {isOpen ? "> DISCONNECT_SESSION" : "> INITIALIZE_UPLINK"}
+            {isOpen ? "> DISCONNECT_SESSION" : "> INITIALIZE_UPLINK"}
           </div>
         </div>
 
         <div className={`nav-list ${isOpen ? "expanded" : ""}`}>
           {navItems.map((item) => (
-            <button key={item.id} className="nav-btn" onClick={() => onNavigate(item.id)}>
+            <button
+              key={item.id}
+              className="nav-btn"
+              onClick={() => {
+                setIsOpen(false);
+                onTravel(item.id);  // ← was onNavigate
+              }}
+            >
               <span className="category">[{item.category}]</span>
               <span className="label">{item.label}</span>
             </button>

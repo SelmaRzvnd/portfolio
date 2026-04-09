@@ -2,8 +2,10 @@
 
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
+import * as THREE from "three";
 
-export default function CameraController({ isPaused, onVelocityUpdate, starDomeRef }) {
+// travelRef shape: { target: THREE.Vector3, onArrival: fn } | null
+export default function CameraController({ isPaused, onVelocityUpdate, starDomeRef, travelRef }) {
   const scroll = useRef(0);
   const velocity = useRef(0);
   const lastTouchY = useRef(0);
@@ -17,6 +19,8 @@ export default function CameraController({ isPaused, onVelocityUpdate, starDomeR
     if (isPaused) return;
 
     const handleWheel = (e) => {
+      // Cancel travel if user scrolls manually
+      if (travelRef?.current) travelRef.current = null;
       velocity.current += e.deltaY * 0.0002;
     };
 
@@ -25,14 +29,11 @@ export default function CameraController({ isPaused, onVelocityUpdate, starDomeR
     };
 
     const handleTouchMove = (e) => {
-    e.preventDefault();
-
-    const touchY = e.touches[0].clientY;
-    const deltaY = lastTouchY.current - touchY;
-
-    velocity.current += deltaY * 0.001;
-
-    lastTouchY.current = touchY;
+      e.preventDefault();
+      if (travelRef?.current) travelRef.current = null;
+      const deltaY = lastTouchY.current - e.touches[0].clientY;
+      velocity.current += deltaY * 0.001;
+      lastTouchY.current = e.touches[0].clientY;
     };
 
     window.addEventListener("wheel", handleWheel);
@@ -44,9 +45,31 @@ export default function CameraController({ isPaused, onVelocityUpdate, starDomeR
       window.removeEventListener("touchstart", handleTouchStart);
       window.removeEventListener("touchmove", handleTouchMove);
     };
-  }, [isPaused]);
+  }, [isPaused, travelRef]);
 
   useFrame((state) => {
+    // ── Travel mode ──────────────────────────────────────────
+    if (travelRef?.current) {
+      const { target, onArrival } = travelRef.current;
+
+      state.camera.position.lerp(target, 0.05);
+
+      if (starDomeRef?.current) {
+        starDomeRef.current.position.copy(state.camera.position);
+      }
+
+      if (Math.abs(state.camera.position.z - target.z) < 15) {
+        travelRef.current = null;
+        velocity.current = 0;
+        scroll.current = (BASE_Z - state.camera.position.z) / TRAVEL_MULTIPLIER;
+        onArrival?.();
+      }
+
+      onVelocityUpdate(0);
+      return; // skip normal scroll logic while traveling
+    }
+
+    // ── Normal scroll mode ───────────────────────────────────
     let nextScroll = scroll.current + velocity.current;
 
     if (nextScroll <= MIN_SCROLL) {
@@ -65,7 +88,7 @@ export default function CameraController({ isPaused, onVelocityUpdate, starDomeR
     const targetZ = BASE_Z - scroll.current * TRAVEL_MULTIPLIER;
     state.camera.position.z += (targetZ - state.camera.position.z) * 0.1;
 
-    if (starDomeRef.current) {
+    if (starDomeRef?.current) {
       starDomeRef.current.position.copy(state.camera.position);
     }
   });
