@@ -163,13 +163,6 @@ export default function TransmissionPanel({ isOpen, onClose }) {
                 Transmission Received
               </h2>
             </div>
-
-            {/* Traffic lights */}
-            <div style={{ display: "flex", gap: "5px", alignItems: "center" }}>
-              <div style={{ width: 7, height: 7, background: "#f43f5e", borderRadius: "50%", opacity: 0.8 }} />
-              <div style={{ width: 7, height: 7, background: "#f97316", borderRadius: "50%", opacity: 0.8 }} />
-              <div style={{ width: 7, height: 7, background: "#22c55e", borderRadius: "50%", opacity: 0.8 }} />
-            </div>
           </div>
 
           {/* Tab row */}

@@ -21,6 +21,7 @@ import UIControls from "@/components/UIControls";
 import TransmissionPanel from "@/components/TransmissionPanel";
 import VoyagerDisk from "@/components/VoyagerDisc";
 
+// Coordinates for the 3D space
 const PLANET_POSITIONS = {
   education: [22, 8, 150],
   work: [-25, -10, 110],
@@ -139,12 +140,16 @@ export default function StarField() {
     isOpen: false,
     title: "",
     content: null,
-    color: "#b81717",
+    color: "#ffffff",
     origin: null,
   });
   const [isIntroOpen, setIsIntroOpen] = useState(true);
   const [isTransmissionOpen, setIsTransmissionOpen] = useState(false);
   const [location, setLocation] = useState({ lat: 49.2827, lng: -123.1207 });
+
+  const shaderRef = useRef();
+  const starDomeRef = useRef();
+  const travelRef = useRef(null);
 
   useEffect(() => {
     if ("geolocation" in navigator) {
@@ -155,42 +160,40 @@ export default function StarField() {
     }
   }, []);
 
+  // EDIT COLORS HERE
   const planetSections = {
-    education: { title: "Education", component: <Education />, color: "#f97316" },
-    work: { title: "Work Experience", component: <Work />, color: "#ace6ee" },
-    projects: { title: "Projects", component: <Projects />, color: "#e484eb" },
-    awards: { title: "Awards", component: <Awards />, color: "#56e694" },
-    research: { title: "Research", component: <Research />, color: "#f43f5e" },
-    about: { title: "About Me", component: <AboutMe />, color: "#ffffff" },
+    education: { title: "Education", component: <Education />, color: "#f97316" }, // Orange
+    work: { title: "Work Experience", component: <Work />, color: "#ace6ee" },      // Light Blue
+    projects: { title: "Projects", component: <Projects />, color: "#e484eb" },    // Purple/Pink
+    awards: { title: "Awards", component: <Awards />, color: "#56e694" },          // Green
+    research: { title: "Research", component: <Research />, color: "#ff69b4" },    // PINK (Updated)
+    about: { title: "About Me", component: <AboutMe />, color: "#ffffff" },        // White
   };
 
-  const handlePlanetClick = (type, origin) => {
+  const openModal = (type, origin = null) => {
     const section = planetSections[type];
     setModalData({
       isOpen: true,
       title: section.title,
       content: section.component,
       color: section.color,
-      origin: origin ?? null,
+      origin: origin,
     });
   };
 
-  const shaderRef = useRef();
-  const starDomeRef = useRef();
-
-  const travelRef = useRef(null);
-
-  const handleTravel = (id) => {
+  const handleTravel = (id, clickOrigin = null) => {
     if (!PLANET_POSITIONS[id]) {
-      handlePlanetClick(id);
+      openModal(id, clickOrigin);
       return;
     }
 
     const [x, y, z] = PLANET_POSITIONS[id];
-
+    
     travelRef.current = {
       target: new THREE.Vector3(0, 0, z + 20),
-      onArrival: () => setTimeout(() => handlePlanetClick(id), 800),
+      onArrival: () => {
+        setTimeout(() => openModal(id, null), 600);
+      },
     };
   };
 
@@ -209,7 +212,7 @@ export default function StarField() {
 
       <TransmissionPanel isOpen={isTransmissionOpen} onClose={() => setIsTransmissionOpen(false)} />
 
-      <NavigationOverlay onTravel={handleTravel} />
+      <NavigationOverlay onTravel={(id) => handleTravel(id)} />
 
       <Canvas
         dpr={typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1}
@@ -220,45 +223,20 @@ export default function StarField() {
           <Stars shaderRef={shaderRef} location={location} />
         </StarDome>
 
-        <Star onClick={() => handlePlanetClick("about")} />
+        <Star onClick={(origin) => handleTravel("about", origin)} />
         <VoyagerDisk />
 
         <group>
-          <Planet
-            position={PLANET_POSITIONS.education}
-            color="#f97316"
-            size={14}
-            hoverText="Education"
-            onClick={(origin) => handlePlanetClick("education", origin)}
-          />
-          <Planet
-            position={PLANET_POSITIONS.work}
-            color="#ace6ee"
-            size={15}
-            hoverText="Work"
-            onClick={(origin) => handlePlanetClick("work", origin)}
-          />
-          <Planet
-            position={PLANET_POSITIONS.projects}
-            color="#e484eb"
-            size={13}
-            hoverText="Projects"
-            onClick={(origin) => handlePlanetClick("projects", origin)}
-          />
-          <Planet
-            position={PLANET_POSITIONS.awards}
-            color="#56e694"
-            size={16}
-            hoverText="Awards"
-            onClick={(origin) => handlePlanetClick("awards", origin)}
-          />
-          <Planet
-            position={PLANET_POSITIONS.research}
-            color="#f43f5e"
-            size={14}
-            hoverText="Research"
-            onClick={(origin) => handlePlanetClick("research", origin)}
-          />
+          {Object.entries(PLANET_POSITIONS).map(([id, pos]) => (
+            <Planet
+              key={id}
+              position={pos}
+              color={planetSections[id].color}
+              size={id === 'work' ? 15 : id === 'awards' ? 16 : 14}
+              hoverText={planetSections[id].title}
+              onClick={(origin) => handleTravel(id, origin)}
+            />
+          ))}
         </group>
 
         <CameraController

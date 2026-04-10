@@ -101,14 +101,14 @@ export default function Projects() {
               style={{
                 fontSize: "0.7rem",
                 fontFamily: "monospace",
-                color: "rgba(212,175,55,0.7)",
+                color: "rgba(167,139,250,0.75)",   // soft purple
                 textDecoration: "none",
                 letterSpacing: "0.05em",
                 transition: "color 0.15s",
                 flexShrink: 0,
               }}
-              onMouseEnter={e => e.currentTarget.style.color = "#d4af37"}
-              onMouseLeave={e => e.currentTarget.style.color = "rgba(212,175,55,0.7)"}
+              onMouseEnter={e => e.currentTarget.style.color = "#a78bfa"}   // bright purple
+              onMouseLeave={e => e.currentTarget.style.color = "rgba(167,139,250,0.75)"}
             >
               {p.linkLabel}
             </a>

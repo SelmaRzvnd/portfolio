@@ -15,15 +15,17 @@ export default function Education() {
         padding: "1.25rem 1.4rem",
         borderRadius: "8px",
         background: "linear-gradient(135deg, rgba(96,165,250,0.08) 0%, rgba(255,255,255,0.02) 100%)",
-        border: "1px solid rgba(96,165,250,0.2)",
+        border: "1px solid rgba(255,120,60,0.25)",
         position: "relative",
         overflow: "hidden",
       }}>
         {/* subtle grid line */}
         <div style={{
           position: "absolute", top: 0, right: 0, bottom: 0, left: 0,
-          backgroundImage: "linear-gradient(rgba(96,165,250,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(96,165,250,0.04) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
+          backgroundImage:
+            "linear-gradient(rgba(255,120,60,0.10) 1px, transparent 1px), \
+            linear-gradient(90deg, rgba(255,90,40,0.06) 1px, transparent 1px)",
+                    backgroundSize: "24px 24px",
           pointerEvents: "none",
         }} />
 
@@ -33,7 +35,7 @@ export default function Education() {
               <span style={{ fontSize: "1.1rem" }}>🎓</span>
               <h3 style={{ fontWeight: 700, fontSize: "1rem", color: "#fff" }}>University of British Columbia</h3>
             </div>
-            <p style={{ fontSize: "0.82rem", color: "rgba(96,165,250,0.9)", fontStyle: "italic", marginBottom: "0.5rem" }}>
+            <p style={{ fontSize: "0.82rem", color: "rgba(250, 165, 96, 0.9)", fontStyle: "italic", marginBottom: "0.5rem" }}>
               Combined Honours in Physics &amp; Computer Science
             </p>
             <div style={{
@@ -54,7 +56,7 @@ export default function Education() {
               display: "block",
               fontFamily: "monospace",
               fontSize: "0.7rem",
-              color: "rgba(96,165,250,0.7)",
+              color: "rgba(250, 147, 96, 0.7)",
               letterSpacing: "0.08em",
             }}>2025 — Present</span>
             <span style={{ fontFamily: "monospace", fontSize: "0.68rem", color: "rgba(255,255,255,0.35)", letterSpacing: "0.05em" }}>Vancouver, BC</span>
