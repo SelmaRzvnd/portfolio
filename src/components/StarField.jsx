@@ -145,7 +145,7 @@ export default function StarField() {
   });
   const [isIntroOpen, setIsIntroOpen] = useState(true);
   const [isTransmissionOpen, setIsTransmissionOpen] = useState(false);
-  const [location, setLocation] = useState({ lat: 35.6892, lng: 51.3890 });
+  const [location, setLocation] = useState({ lat: 49.2827, lng: -123.1207 });
 
   const shaderRef = useRef();
   const starDomeRef = useRef();
