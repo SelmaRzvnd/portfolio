@@ -57,7 +57,7 @@ function Stars({ shaderRef, location }) {
       colors: new Float32Array(col),
       brightnesses: new Float32Array(bright),
     };
-  }, [location]);
+  }, [location.lat, location.lng]);
 
   return (
     <points renderOrder={999} raycast={() => null}>
@@ -145,7 +145,7 @@ export default function StarField() {
   });
   const [isIntroOpen, setIsIntroOpen] = useState(true);
   const [isTransmissionOpen, setIsTransmissionOpen] = useState(false);
-  const [location, setLocation] = useState({ lat: 49.2827, lng: -123.1207 });
+  const [location, setLocation] = useState({ lat: 35.6892, lng: 51.3890 });
 
   const shaderRef = useRef();
   const starDomeRef = useRef();
@@ -208,7 +208,7 @@ export default function StarField() {
         onOpenTransmission={() => setIsTransmissionOpen(true)}
       />
 
-      <IntroOverlay isOpen={isIntroOpen} onClose={() => setIsIntroOpen(false)} />
+      <IntroOverlay isOpen={isIntroOpen} onClose={() => setIsIntroOpen(false)} location={location} />
 
       <TransmissionPanel isOpen={isTransmissionOpen} onClose={() => setIsTransmissionOpen(false)} />
 

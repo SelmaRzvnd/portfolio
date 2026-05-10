@@ -28,7 +28,7 @@ export default function Education() {
                     backgroundSize: "24px 24px",
           pointerEvents: "none",
         }} />
-
+   
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem", flexWrap: "wrap" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.3rem" }}>
@@ -36,7 +36,7 @@ export default function Education() {
               <h3 style={{ fontWeight: 700, fontSize: "1rem", color: "#fff" }}>University of British Columbia</h3>
             </div>
             <p style={{ fontSize: "0.82rem", color: "rgba(250, 165, 96, 0.9)", fontStyle: "italic", marginBottom: "0.5rem" }}>
-              Combined Honours in Physics &amp; Computer Science
+              Combined Major in Physics &amp; Computer Science
             </p>
             <div style={{
               display: "inline-flex", alignItems: "center", gap: "0.35rem",
@@ -47,7 +47,7 @@ export default function Education() {
             }}>
               <span style={{ fontSize: "0.8rem" }}>✨</span>
               <span style={{ fontFamily: "monospace", fontSize: "0.78rem", color: "#d4af37", fontWeight: 700, letterSpacing: "0.05em" }}>
-                GPA: 93.4%
+                GPA: 94.1%
               </span>
             </div>
           </div>

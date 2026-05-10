@@ -3,6 +3,7 @@ export default function Work() {
     <div className="space-y-6">
 
       {/* Work Experience */}
+      
       <div>
         <h4 style={{
           fontSize: "0.65rem",
@@ -14,6 +15,37 @@ export default function Work() {
         }}>
           ◈ Work Experience
         </h4>
+
+        <div style={{
+          marginTop: "0.6rem",
+          padding: "1.1rem 1.2rem",
+          borderRadius: "8px",
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(120,180,255,0.15)",
+          borderLeft: "3px solid rgba(120,180,255,0.55)",
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "0.4rem", marginBottom: "0.25rem" }}>
+            <h3 style={{ fontWeight: 700, fontSize: "0.92rem", color: "#fff", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <span>🔭</span> Research Assistant
+            </h3>
+            <span style={{
+              fontFamily: "monospace",
+              fontSize: "0.65rem",
+              color: "rgba(120,180,255,0.85)",
+              letterSpacing: "0.07em",
+            }}>Jan 2026 — Present</span>
+          </div>
+
+          <p style={{ fontSize: "0.73rem", color: "rgba(120,180,255,0.7)", fontFamily: "monospace", letterSpacing: "0.04em", marginBottom: "0.15rem" }}>
+            Department of Physics &amp; Astronomy
+          </p>
+          <p style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.35)", fontFamily: "monospace", marginBottom: "0.6rem" }}>
+            University of British Columbia · Vancouver, BC
+          </p>
+          <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.55 }}>
+            {/* Add your description here */}
+          </p>
+        </div>
 
         <div style={{
           padding: "1.1rem 1.2rem",

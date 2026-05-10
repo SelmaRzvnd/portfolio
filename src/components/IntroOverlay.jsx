@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export default function IntroOverlay({ isOpen, onClose }) {
+export default function IntroOverlay({ isOpen, onClose, location = { lat: 49.2827, lng: -123.1207 } }) {
   const [phase, setPhase] = useState(isOpen ? "visible" : "gone");
 
   if (isOpen && phase === "gone") {
@@ -58,7 +58,8 @@ export default function IntroOverlay({ isOpen, onClose }) {
         margin: "0 0 1.2rem",
         animation: "fadeSlideDown 1s 0.5s both",
       }}>
-        49.28° N · 123.12° W · {new Date().toUTCString().slice(17, 22)} UTC
+        {Math.abs(location.lat).toFixed(2)}° {location.lat >= 0 ? "N" : "S"} · {Math.abs(location.lng).toFixed(2)}° {location.lng >= 0 ? "E" : "W"} · {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false })}
+
       </p>
 
       {/* Main heading */}

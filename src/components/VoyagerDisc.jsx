@@ -143,7 +143,7 @@ const VoyagerQuoteText = forwardRef((props, ref) => {
   useEffect(() => {
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % quotes.length);
-    }, 10000);
+    }, 15000);
     return () => clearInterval(interval);
   }, []);
 
