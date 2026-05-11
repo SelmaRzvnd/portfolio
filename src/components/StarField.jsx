@@ -21,6 +21,7 @@ import UIControls from "@/components/UIControls";
 import TransmissionPanel from "@/components/TransmissionPanel";
 import VoyagerDisk from "@/components/VoyagerDisc";
 
+
 // Coordinates for the 3D space
 const PLANET_POSITIONS = {
   education: [22, 8, 150],
@@ -159,7 +160,14 @@ export default function StarField() {
       );
     }
   }, []);
+  const [timezone, setTimezone] = useState('UTC');
 
+  useEffect(() => {
+    fetch(`https://timeapi.io/api/timezone/coordinate?latitude=${location.lat}&longitude=${location.lng}`)
+      .then(res => res.json())
+      .then(data => setTimezone(data.timeZone))
+      .catch(() => setTimezone('UTC'));
+  }, [location.lat, location.lng]);
   // EDIT COLORS HERE
   const planetSections = {
     education: { title: "Education", component: <Education />, color: "#f97316" }, // Orange
@@ -208,8 +216,7 @@ export default function StarField() {
         onOpenTransmission={() => setIsTransmissionOpen(true)}
       />
 
-      <IntroOverlay isOpen={isIntroOpen} onClose={() => setIsIntroOpen(false)} location={location} />
-
+      <IntroOverlay isOpen={isIntroOpen} onClose={() => setIsIntroOpen(false)} location={location} timezone={timezone} /> 
       <TransmissionPanel isOpen={isTransmissionOpen} onClose={() => setIsTransmissionOpen(false)} />
 
       <NavigationOverlay onTravel={(id) => handleTravel(id)} />
