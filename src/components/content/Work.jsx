@@ -100,9 +100,9 @@ export default function Work() {
           {[
             {
               icon: "💻",
-              role: "Volunteer",
+              role: "Website Developer",
               org: "UBC YouCode",
-              period: "2025 — Present",
+              period: "2026 — Present",
               location: "Vancouver, BC",
             },
             {
