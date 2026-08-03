@@ -98,7 +98,7 @@ export default function NavigationOverlay({ onTravel }) {  // ← was onNavigate
               className="nav-btn"
               onClick={() => {
                 setIsOpen(false);
-                onTravel(item.id);  // ← was onNavigate
+                onTravel(item.id);
               }}
             >
               <span className="category">[{item.category}]</span>

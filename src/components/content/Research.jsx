@@ -41,13 +41,14 @@ const studies = [
           rel="noopener noreferrer"
           style={{ color: "#a78bfa", fontFamily: "monospace", fontSize: "0.68rem", textDecoration: "none", borderBottom: "1px dotted #a78bfa" }}
         >
-          → Read in the MURC × CJUR 2026 Proceedings (p. 78/117)
+          → Read in the MURC × CJUR 2026 Proceedings (p. 78)
         </a>
       </div>
     ),
-    tags: ["Julia", "General Relativity", "Numerical Methods", "3D Visualization"],
+    tags: ["Julia", "Algorithm Design", "Computational Modeling", "Data Visualization", "Numerical Analysis"],
     color: "#a78bfa",
     supervisor: "Haozhi Hong",
+    expandable: true,
   },
   {
     emoji: "🌌",
@@ -126,7 +127,9 @@ export default function Research() {
                     color: "rgba(255,255,255,0.6)",
                     lineHeight: 1.6,
                     marginBottom: "0.4rem",
-                    maxHeight: isOpen ? "none" : "3.2rem",
+                    display: "-webkit-box",
+                    WebkitBoxOrient: "vertical",
+                    WebkitLineClamp: isOpen ? "unset" : 3,
                     overflow: "hidden",
                   }}
                 >
@@ -147,16 +150,18 @@ export default function Research() {
                 >
                   {isOpen ? "▲ Show less" : "▼ Read more"}
                 </button>
-                <div style={{ marginBottom: "0.65rem" }}>
-                  <a
-                    href="https://phas.ubc.ca/erich-vogt-first-year-summer-research-experience-fysre"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: s.color, fontFamily: "monospace", fontSize: "0.68rem", textDecoration: "none", borderBottom: `1px dotted ${s.color}` }}
-                  >
-                    → About the FYSRE Award
-                  </a>
-                </div>
+                {s.title.includes("Exoplanet") && (
+                  <div style={{ marginBottom: "0.65rem" }}>
+                    <a
+                      href="https://phas.ubc.ca/erich-vogt-first-year-summer-research-experience-fysre"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: s.color, fontFamily: "monospace", fontSize: "0.68rem", textDecoration: "none", borderBottom: `1px dotted ${s.color}` }}
+                    >
+                      → About the FYSRE Award
+                    </a>
+                  </div>
+                )}
               </>
             ) : (
               <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.6, marginBottom: "0.65rem" }}>

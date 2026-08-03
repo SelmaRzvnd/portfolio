@@ -27,8 +27,8 @@ const PLANET_POSITIONS = {
   education: [22, 8, 150],
   work: [-25, -10, 110],
   projects: [18, 15, 60],
-  awards: [-15, -12, 0],
-  research: [28, 5, -50],
+  research: [-15, -12, 0],
+  awards: [28, 5, -50],
 };
 
 function Stars({ shaderRef, location }) {

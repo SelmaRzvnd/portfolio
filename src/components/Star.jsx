@@ -2,13 +2,13 @@
 
 import { useRef, useMemo, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei"; // Added Html import
+import { Html } from "@react-three/drei";
 import * as THREE from "three";
 
 /* ─── Star Hover Label ───────────────────────────────────────────────── */
 function StarLabel({ text, visible }) {
-  const starColor = "#ffcc00"; // Intense Gold/Yellow
-  const accentColor = "#ff4d00"; // Plasma Orange/Red
+  const starColor = "#ffcc00";
+  const accentColor = "#ff4d00";
 
   const finalTransform = visible
     ? "translate(-50%, -50%) scale(1)"
@@ -17,7 +17,7 @@ function StarLabel({ text, visible }) {
   return (
     <Html
       center
-      distanceFactor={80} // Adjusted for the larger star size
+      distanceFactor={80}
       zIndexRange={[100, 0]}
       style={{ pointerEvents: "none" }}
     >
@@ -57,7 +57,7 @@ function StarLabel({ text, visible }) {
             letterSpacing: "0.25em",
             textTransform: "uppercase",
             color: "#fff",
-            background: "rgba(15, 5, 0, 0.95)", // Very dark red-black
+            background: "rgba(15, 5, 0, 0.95)",
             border: `1px solid ${accentColor}aa`,
             backdropFilter: "blur(10px)",
             whiteSpace: "nowrap",
