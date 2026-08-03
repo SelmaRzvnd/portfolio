@@ -1,14 +1,34 @@
 const studies = [
   {
+      emoji: "⚪",
+      title: "Exoplanet Detection & Characterization: White Dwarfs & Hot Neptunes",
+      org: "UBC Department of Physics & Astronomy — Erich Vogt FYSRE Award",
+      period: "May 2026 — Aug 2026",
+      location: "Vancouver, BC",
+      desc: (
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+          <p>
+            <strong>White Dwarf Transiting Exoplanet Detection Pipeline:</strong> Architected an end-to-end Python data pipeline to process ~99,000 high-frequency time-series datasets from NASA's TESS mission, deployed on high-performance computing clusters. Because white dwarf transits are ultra-fast (often just 1–2 datapoints), standard pipelines fail to detect them. Lacking real-world benchmark data, I engineered synthetic dataset simulations to stress-test our algorithms. By optimizing Box Least Squares (BLS) logic and custom thresholding metrics, and fixing critical flaws in the vetting logic (e.g., negative flux inversion and generalized stellar-density assumptions), I boosted our signal recovery rate from 1.7% to 96.0%. Applied the validated pipeline to real data, confirming a strong planet candidate.
+          </p>
+          <p>
+            <strong>Hot Neptune Characterization (TOI-5872.01):</strong> Investigated a rare "hot Neptune" candidate located in the sparsely populated Neptune Desert. To measure its mass/density and refine theories on planetary evolution, I co-authored a rigorous observational proposal to obtain high-precision radial velocity data using the MAROON-X spectrograph on the Gemini North Telescope. The proposal successfully secured allocation, scoring in the first quartile of all global submissions.
+          </p>
+        </div>
+      ),
+      tags: ["Python", "Scientific Computing", "HPC", "Signal Processing", "Data Pipelines"],
+      color: "#facc15",
+      supervisor: "Dr. Michelle Kunimoto",
+    },
+  {
     emoji: "🕳️",
-    title: "Black Hole Trajectory Simulations",
-    org: "UBC Undergraduate Research Opportunities (REX Program)",
+    title: "Mapping Particle Fates Around Black Holes: A Computational Phase-Space Analysis of Schwarzschild Geodesics",
+    org: "UBC Undergraduate Research Opportunities (REX Program) — Published",
     period: "Oct 2025 — Mar 2026",
     location: "Vancouver, BC",
-    desc: "Built a Julia framework to simulate particle trajectories around Schwarzschild black holes — geodesic solver, phase-space classification across 160,000 parameter combinations, and 3D orbital visualizations. Presented findings at MURC.",
-    tags: ["Julia", "General Relativity", "3D Visualization"],
+    desc: "Developed a computational framework in Julia to explore particle motion around a non-rotating (Schwarzschild) black hole. Solved the geodesic equations using a high-order adaptive integrator, classifying particle trajectories across 160,000 combinations of energy and angular momentum to produce a complete phase portrait of orbital outcomes — captured, bound, or escaped. Every numerical boundary was validated against exact analytical predictions from general relativity. Generated 3D visualizations of distinct orbit types, including precessing rosette orbits, whirl-and-plunge captures near the stability boundary, and vertically oscillating trajectories. Presented findings at MURC (UBC's biggest Multidisciplinary Research Conference).",
+    tags: ["Julia", "General Relativity", "Numerical Methods", "3D Visualization"],
     color: "#a78bfa",
-    supervisor: "Haozhi Hong",
+    supervisor: "Dr. Haozhi Hong",
   },
   {
     emoji: "🌌",
@@ -74,9 +94,10 @@ export default function Research() {
             <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)", fontFamily: "monospace" }}>· {s.location}</span>
           </div>
 
-          <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.6, marginBottom: "0.65rem" }}>
+          {/* *** CHANGED FROM <p> TO <div> HERE *** */}
+          <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.6, marginBottom: "0.65rem" }}>
             {s.desc}
-          </p>
+          </div>
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
             {/* Tags */}

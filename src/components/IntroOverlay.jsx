@@ -14,7 +14,7 @@ export default function IntroOverlay({ isOpen, onClose, location = { lat: 49.282
     setTimeout(() => {
       setPhase("gone");
       onClose();
-    }, 1200);
+    }, 1200);  m
   };
 
   if (phase === "gone" && !isOpen) return null;

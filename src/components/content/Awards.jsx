@@ -85,7 +85,22 @@ export default function Awards() {
                   lineHeight: 1.3,
                 }}
               >
-                {a.title}
+                {a.title === "Erich Vogt First Year Summer Research Experience (FYSRE)" ? (
+                  <a
+                    href="https://phas.ubc.ca/erich-vogt-first-year-summer-research-experience-fysre"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      color: "inherit",
+                      textDecoration: "none",
+                      borderBottom: "1px dotted rgba(255,255,255,0.4)",
+                    }}
+                  >
+                    {a.title}
+                  </a>
+                ) : (
+                  a.title
+                )}
               </h3>
 
               <span
