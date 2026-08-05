@@ -114,7 +114,7 @@ export default function PlanetModal({ isOpen, onClose, title, content, themeColo
       />
 
       <div
-        className={`relative w-full max-w-2xl bg-[#050507]/90 backdrop-blur-3xl rounded-3xl p-10 text-white ${
+        className={`relative w-full max-w-5xl bg-[#050507]/90 backdrop-blur-3xl rounded-3xl p-10 text-white ${
           isClosing ? "animate-modal-out" : "animate-modal-in"
         }`}
         style={{

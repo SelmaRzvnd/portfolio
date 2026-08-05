@@ -21,16 +21,16 @@ const studies = [
           </a>
         </p>
         <p style={{ margin: 0, fontStyle: "italic", color: "#fff" }}>
-          Only one transiting exoplanet around a white dwarf has ever been confirmed — not because they're rare, but because standard detection tools break on them. This summer, I built the pipeline to help find the next one.
+          Only one transiting exoplanet around a white dwarf has ever been confirmed; not because they're extremely rare, but because standard detection tools break on them. This summer, I built the pipeline to help find the next one.
         </p>
         <p style={{ margin: 0 }}>
-          <strong>White Dwarf Transiting Exoplanet Detection Pipeline:</strong> Architected an end-to-end Python data pipeline to search for ultra-fast exoplanet transits, batch-processing 99,000+ high-frequency time-series light curves from NASA's TESS mission on GPU-accelerated remote servers. Because white dwarf transits are so brief they're often captured in just 1–2 datapoints, standard pipelines fail to detect them outright. Lacking real-world benchmark data, I engineered synthetic dataset simulations to stress-test our algorithms, debug edge cases, and establish ground-truth benchmarks. By resolving critical flaws in the core injection and vetting logic — including a data-handling bug that silently corrupted low-flux signals — and optimizing detection thresholds, I boosted signal recovery from 1.7% to 96.0%. Applied the validated pipeline to real TESS data and confirmed a strong planet candidate across multiple observing sectors.
+          <strong>White Dwarf Transiting Exoplanet Detection Pipeline:</strong> Architected an end-to-end Python data pipeline to search for ultra-fast exoplanet transits, batch-processing 99,000+ high-frequency time-series light curves from NASA's TESS mission on GPU-accelerated remote servers. Because white dwarf transits are so brief they're often captured in just 1–2 datapoints, standard pipelines fail to detect them outright. Lacking real-world benchmark data, I engineered synthetic dataset simulations to stress-test our algorithms, debug edge cases, and establish ground-truth benchmarks. By resolving critical flaws in the core injection and vetting logic and optimizing detection thresholds, I boosted signal recovery from 1.7% to 96.0%. Applied the validated pipeline to real TESS data and confirmed a strong planet candidate across multiple observing sectors.
         </p>
         <p style={{ margin: 0, fontStyle: "italic", color: "#fff" }}>
           Discovering a rare planet in a region where planets almost never survive.
         </p>
         <p style={{ margin: 0 }}>
-          <strong>Hot Neptune Characterization (TOI-5872.01):</strong> Investigated a rare "hot Neptune" candidate located in the sparsely populated Neptune Desert. To measure its mass and density and refine theories on planetary evolution, I co-authored a rigorous observational proposal to obtain high-precision radial velocity data using the MAROON-X spectrograph on the Gemini North Telescope. The proposal successfully secured allocation, scoring in the first quartile of all global submissions.
+          <strong>Hot Neptune Confirmation and Characterization:</strong> Investigated a rare "hot Neptune" candidate located in the sparsely populated "Neptune Desert". To measure its mass and density and refine theories on planetary evolution, I co-authored a rigorous observational proposal to obtain high-precision radial velocity data using the MAROON-X spectrograph on the Gemini North Telescope. The proposal successfully secured allocation, scoring in the first quartile of all global submissions.
         </p>
       </div>
     ),
@@ -59,7 +59,7 @@ const studies = [
     supervisor: "Haozhi Hong",
     expandable: true,
     linkUrl: "https://cjur.ca/wp-content/uploads/2026/05/MURC-x-CJUR-2026.pdf",
-    linkText: "→ Read in the MURC × CJUR 2026 Proceedings (p. 78)",
+    linkText: "→ Read in the MURC × CJUR 2026 Proceedings (p. 79)",
   },
   {
     emoji: "🌌",
@@ -96,7 +96,7 @@ export default function Research() {
         <div
           key={s.title}
           style={{
-            padding: "1.1rem 1.2rem",
+            padding: "1.3rem 1.2rem",
             borderRadius: "8px",
             background: "rgba(255,255,255,0.03)",
             border: "1px solid rgba(255,255,255,0.08)",
@@ -203,7 +203,7 @@ export default function Research() {
                     color: "rgba(255,255,255,0.6)",
                     lineHeight: 1.6,
                     marginBottom: "0.4rem",
-                    maxHeight: isOpen ? "1000px" : "3.8rem",
+                    maxHeight: isOpen ? "1000px" : "6rem",
                     overflow: "hidden",
                     position: "relative",
                     transition: "max-height 0.3s ease-in-out",
