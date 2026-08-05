@@ -1,31 +1,79 @@
+"use client";
+
+import { useCallback } from "react";
+
 export default function Work() {
+  const accentBase = "rgba(120,180,255,0.55)";
+  const borderBase = "rgba(120,180,255,0.15)";
+  const hoverBg = "rgba(120,180,255,0.06)";
+  const normalBg = "rgba(255,255,255,0.03)";
+
+  const applyHover = useCallback((el, opts = {}) => {
+    if (!el) return;
+    const { accent = accentBase, border = borderBase, bg = hoverBg } = opts;
+    el.style.background = bg;
+    el.style.borderColor = "rgba(120,180,255,0.25)";
+    el.style.boxShadow = `0 6px 18px ${accent.replace(/0\.55\)$/, "0.14)")}`;
+    el.style.transform = "translateY(-2px)";
+    el.style.borderLeft = `4px solid ${accent}`;
+    const h3 = el.querySelector("h3");
+    if (h3) {
+      h3.style.fontWeight = 800;
+      h3.style.transition = "font-weight 0.12s, transform 0.12s";
+    }
+  }, []);
+
+  const removeHover = useCallback((el) => {
+    if (!el) return;
+    el.style.background = normalBg;
+    el.style.borderColor = borderBase;
+    el.style.boxShadow = "none";
+    el.style.transform = "none";
+    el.style.borderLeft = `3px solid ${accentBase}`;
+    const h3 = el.querySelector("h3");
+    if (h3) h3.style.fontWeight = 700;
+  }, []);
+
+  // small helper to attach both mouse and keyboard handlers inline
+  const handlersFor = (accent = accentBase) => ({
+    onMouseEnter: (e) => applyHover(e.currentTarget, { accent }),
+    onMouseLeave: (e) => removeHover(e.currentTarget),
+    onFocus: (e) => applyHover(e.currentTarget, { accent }),
+    onBlur: (e) => removeHover(e.currentTarget),
+    tabIndex: 0, // make focusable for keyboard users
+    style: {
+      marginTop: "0.6rem",
+      padding: "1.1rem 1.2rem",
+      borderRadius: "8px",
+      background: normalBg,
+      border: `1px solid ${borderBase}`,
+      borderLeft: `3px solid ${accent}`,
+      transition: "background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.12s",
+      outline: "none",
+    },
+  });
+
   return (
     <div className="space-y-6">
-
       {/* Work Experience */}
       <div>
-        <h4 style={{
-          fontSize: "0.65rem",
-          letterSpacing: "0.2em",
-          textTransform: "uppercase",
-          color: "rgba(120,180,255,0.85)",   // blue-gold header
-          fontFamily: "monospace",
-          marginBottom: "0.75rem",
-        }}>
+        <h4
+          style={{
+            fontSize: "0.65rem",
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: "rgba(120,180,255,0.85)",
+            fontFamily: "monospace",
+            marginBottom: "0.75rem",
+          }}
+        >
           ◈ Work Experience
         </h4>
 
         {/* Research Assistant */}
-        <div style={{
-          marginTop: "0.6rem",
-          padding: "1.1rem 1.2rem",
-          borderRadius: "8px",
-          background: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(120,180,255,0.15)",
-          borderLeft: "3px solid rgba(120,180,255,0.55)",
-        }}>
+        <div {...handlersFor(accentBase)}>
           <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "0.4rem", marginBottom: "0.25rem" }}>
-            <h3 style={{ fontWeight: 700, fontSize: "0.92rem", color: "#fff", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+            <h3 style={{ fontWeight: 700, fontSize: "0.92rem", color: "#fff", display: "flex", alignItems: "center", gap: "0.4rem", margin: 0 }}>
               <span>🔭</span> Research Assistant — FYSRE Award
             </h3>
             <span style={{
@@ -51,22 +99,15 @@ export default function Work() {
         </div>
 
         {/* Teaching Assistant */}
-        <div style={{
-          marginTop: "0.75rem",
-          padding: "1.1rem 1.2rem",
-          borderRadius: "8px",
-          background: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(120,180,255,0.15)",   // blue border
-          borderLeft: "3px solid rgba(120,180,255,0.55)", // blue accent bar
-        }}>
+        <div {...handlersFor(accentBase)} style={{ marginTop: "0.75rem", ...handlersFor(accentBase).style }}>
           <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "0.4rem", marginBottom: "0.25rem" }}>
-            <h3 style={{ fontWeight: 700, fontSize: "0.92rem", color: "#fff", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+            <h3 style={{ fontWeight: 700, fontSize: "0.92rem", color: "#fff", display: "flex", alignItems: "center", gap: "0.4rem", margin: 0 }}>
               <span>👨‍🏫</span> Teaching Assistant
             </h3>
             <span style={{
               fontFamily: "monospace",
               fontSize: "0.65rem",
-              color: "rgba(120,180,255,0.85)",   // blue date
+              color: "rgba(120,180,255,0.85)",
               letterSpacing: "0.07em",
             }}>Oct 2023 — Apr 2025</span>
           </div>
@@ -89,7 +130,7 @@ export default function Work() {
           fontSize: "0.65rem",
           letterSpacing: "0.2em",
           textTransform: "uppercase",
-          color: "rgba(120,180,255,0.85)",   // blue header
+          color: "rgba(120,180,255,0.85)",
           fontFamily: "monospace",
           marginBottom: "0.75rem",
         }}>
@@ -101,7 +142,7 @@ export default function Work() {
             {
               icon: "💻",
               role: "Website Developer",
-              org: "UBC YouCode",
+              org: "UBC YouCode, Women in Computer Science Club",
               period: "2026 — Present",
               location: "Vancouver, BC",
             },
@@ -122,6 +163,7 @@ export default function Work() {
           ].map((item) => (
             <div
               key={item.org}
+              {...handlersFor(accentBase)}
               style={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -129,17 +171,10 @@ export default function Work() {
                 gap: "0.75rem",
                 padding: "0.6rem 0.9rem",
                 borderRadius: "5px",
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(120,180,255,0.12)",   // blue border
-                transition: "background 0.2s, border-color 0.2s",
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = "rgba(120,180,255,0.06)";
-                e.currentTarget.style.borderColor = "rgba(120,180,255,0.25)";
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = "rgba(255,255,255,0.03)";
-                e.currentTarget.style.borderColor = "rgba(120,180,255,0.12)";
+                background: normalBg,
+                border: "1px solid rgba(120,180,255,0.12)",
+                transition: "background 0.2s, border-color 0.2s, box-shadow 0.12s, transform 0.12s",
+                ...handlersFor(accentBase).style,
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
@@ -154,7 +189,7 @@ export default function Work() {
                 flexShrink: 0,
                 fontFamily: "monospace",
                 fontSize: "0.63rem",
-                color: "rgba(120,180,255,0.55)",   // blue date
+                color: "rgba(120,180,255,0.55)",
                 letterSpacing: "0.04em",
                 textAlign: "right",
               }}>{item.period}</span>

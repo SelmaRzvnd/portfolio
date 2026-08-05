@@ -1,3 +1,7 @@
+"use client";
+
+import { useCallback } from "react";
+
 const certs = [
   { name: "Data Analysis Using Python", org: "IBM", year: "Feb 2026" },
   { name: "Data Fundamentals", org: "IBM SkillsBuild", year: "Feb 2026" },
@@ -7,33 +11,103 @@ const certs = [
 ];
 
 export default function Education() {
+  const accentBase = "rgba(212,175,55,0.9)"; // gold accent
+  const borderBase = "rgba(255,120,60,0.25)"; // original degree border tone
+  const normalBg = "rgba(255,255,255,0.03)";
+  const hoverBg = "rgba(212,175,55,0.06)";
+
+  const applyHover = useCallback((el, opts = {}) => {
+    if (!el) return;
+    const { accent = accentBase, bg = hoverBg, border = borderBase } = opts;
+    el.style.background = bg;
+    el.style.borderColor = "rgba(212,175,55,0.25)";
+    el.style.boxShadow = `0 6px 18px ${accent.replace(/0\.9\)$/, "0.14)")}`;
+    el.style.transform = "translateY(-2px)";
+    el.style.borderLeft = `4px solid ${accent}`;
+    const h3 = el.querySelector("h3");
+    if (h3) {
+      h3.style.fontWeight = 800;
+      h3.style.transition = "font-weight 0.12s, transform 0.12s";
+    }
+  }, []);
+
+  const removeHover = useCallback((el, opts = {}) => {
+    if (!el) return;
+    const { accent = accentBase, border = borderBase } = opts;
+    el.style.background = normalBg;
+    el.style.borderColor = border;
+    el.style.boxShadow = "none";
+    el.style.transform = "none";
+    el.style.borderLeft = `3px solid ${accent}`;
+    const h3 = el.querySelector("h3");
+    if (h3) h3.style.fontWeight = 700;
+  }, []);
+
+  const handlersFor = (accent = accentBase, border = borderBase, bg = normalBg) => ({
+    onMouseEnter: (e) => applyHover(e.currentTarget, { accent, bg, border }),
+    onMouseLeave: (e) => removeHover(e.currentTarget, { accent, border }),
+    onFocus: (e) => applyHover(e.currentTarget, { accent, bg, border }),
+    onBlur: (e) => removeHover(e.currentTarget, { accent, border }),
+    tabIndex: 0,
+    style: {
+      padding: "0.55rem 0.9rem",
+      borderRadius: "5px",
+      background: bg,
+      border: "1px solid rgba(255,255,255,0.07)",
+      borderLeft: `3px solid ${accent}`,
+      transition: "background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.12s",
+      outline: "none",
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      gap: "0.75rem",
+    },
+  });
+
+  // Degree card handlers (slightly larger padding)
+  const degreeHandlers = {
+    onMouseEnter: (e) => applyHover(e.currentTarget, { accent: accentBase, bg: "linear-gradient(135deg, rgba(212,175,55,0.06) 0%, rgba(255,255,255,0.02) 100%)", border: borderBase }),
+    onMouseLeave: (e) => removeHover(e.currentTarget, { accent: accentBase, border: borderBase }),
+    onFocus: (e) => applyHover(e.currentTarget, { accent: accentBase, bg: "linear-gradient(135deg, rgba(212,175,55,0.06) 0%, rgba(255,255,255,0.02) 100%)", border: borderBase }),
+    onBlur: (e) => removeHover(e.currentTarget, { accent: accentBase, border: borderBase }),
+    tabIndex: 0,
+    style: {
+      padding: "1.25rem 1.4rem",
+      borderRadius: "8px",
+      background: "linear-gradient(135deg, rgba(96,165,250,0.08) 0%, rgba(255,255,255,0.02) 100%)",
+      border: `1px solid ${borderBase}`,
+      borderLeft: `3px solid ${accentBase}`,
+      position: "relative",
+      overflow: "hidden",
+      transition: "background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.12s",
+      outline: "none",
+    },
+  };
+
   return (
     <div className="space-y-6">
-
       {/* Degree */}
-      <div style={{
-        padding: "1.25rem 1.4rem",
-        borderRadius: "8px",
-        background: "linear-gradient(135deg, rgba(96,165,250,0.08) 0%, rgba(255,255,255,0.02) 100%)",
-        border: "1px solid rgba(255,120,60,0.25)",
-        position: "relative",
-        overflow: "hidden",
-      }}>
+      <div {...degreeHandlers}>
         {/* subtle grid line */}
-        <div style={{
-          position: "absolute", top: 0, right: 0, bottom: 0, left: 0,
-          backgroundImage:
-            "linear-gradient(rgba(255,120,60,0.10) 1px, transparent 1px), \
-            linear-gradient(90deg, rgba(255,90,40,0.06) 1px, transparent 1px)",
-                    backgroundSize: "24px 24px",
-          pointerEvents: "none",
-        }} />
-   
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+            backgroundImage:
+              "linear-gradient(rgba(255,120,60,0.10) 1px, transparent 1px), linear-gradient(90deg, rgba(255,90,40,0.06) 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+            pointerEvents: "none",
+          }}
+        />
+
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem", flexWrap: "wrap" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.3rem" }}>
               <span style={{ fontSize: "1.1rem" }}>🎓</span>
-              <h3 style={{ fontWeight: 700, fontSize: "1rem", color: "#fff" }}>University of British Columbia</h3>
+              <h3 style={{ fontWeight: 700, fontSize: "1rem", color: "#fff", margin: 0 }}>University of British Columbia</h3>
             </div>
             <p style={{ fontSize: "0.82rem", color: "rgba(250, 165, 96, 0.9)", fontStyle: "italic", marginBottom: "0.5rem" }}>
               Combined Major in Physics &amp; Computer Science
@@ -81,19 +155,7 @@ export default function Education() {
           {certs.map((c) => (
             <div
               key={c.name}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: "0.75rem",
-                padding: "0.55rem 0.9rem",
-                borderRadius: "5px",
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                transition: "background 0.2s",
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
-              onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.03)"}
+              {...handlersFor(accentBase)}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", minWidth: 0 }}>
                 <span style={{ color: "rgba(96,165,250,0.6)", fontSize: "0.7rem", flexShrink: 0 }}>▸</span>

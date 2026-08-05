@@ -1,3 +1,5 @@
+"use client";
+
 const projects = [
   {
     emoji: "🧠",
@@ -14,10 +16,10 @@ const projects = [
     emoji: "🌐",
     title: "TechLelum",
     tag: "Hackcamp · Nov 2025",
-    tagColor: "#60a5fa",
+    tagColor: "#a78bfa",
     desc: "Built core React components and designed the initial UI/UX for a youth tech learning platform.",
     stack: ["React", "Figma", "Frontend"],
-    stackColor: "#60a5fa",
+    stackColor: "#a78bfa",
     link: "https://devpost.com/software/tech-lelum",
     linkLabel: "Devpost ↗",
   },
@@ -25,10 +27,10 @@ const projects = [
     emoji: "⭐",
     title: "Binary Star Simulation",
     tag: "Personal · Sep 2025",
-    tagColor: "#34d399",
+    tagColor: "#a78bfa",
     desc: "Simulated eclipsing binary systems with 3D orbital visualizations and luminosity curves.",
     stack: ["Python", "NumPy", "Astropy"],
-    stackColor: "#34d399",
+    stackColor: "#a78bfa",
     link: "https://github.com/SelmaRzvnd/eclipsing-binary-sim",
     linkLabel: "GitHub ↗",
   },
@@ -36,10 +38,10 @@ const projects = [
     emoji: "🕹️",
     title: "Rogue-like Terminal Game",
     tag: "Personal · 2024",
-    tagColor: "#fb923c",
+    tagColor: "#a78bfa",
     desc: "C-based rogue-like with procedural generation and turn-based combat.",
     stack: ["C", "ncurses"],
-    stackColor: "#fb923c",
+    stackColor: "#a78bfa",
     link: "https://github.com/SelmaRzvnd/Rogue",
     linkLabel: "GitHub ↗",
   },
@@ -47,10 +49,10 @@ const projects = [
     emoji: "💾",
     title: "File System Command Interpreter",
     tag: "Personal · 2024",
-    tagColor: "#f472b6",
+    tagColor: "#a78bfa",
     desc: "Terminal-based file system interpreter in C supporting UNIX-like operations.",
     stack: ["C", "UNIX"],
-    stackColor: "#f472b6",
+    stackColor: "#a78bfa",
     link: "https://github.com/SelmaRzvnd/fs_interpreter",
     linkLabel: "GitHub ↗",
   },
@@ -60,39 +62,68 @@ export default function Projects() {
   return (
     <div className="space-y-3">
       {projects.map((p) => (
-        <div
-          key={p.title}
-          style={{
-            padding: "1rem 1.1rem",
-            borderRadius: "8px",
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            transition: "all 0.2s",
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.background = "rgba(255,255,255,0.06)";
-            e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)";
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.background = "rgba(255,255,255,0.03)";
-            e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
-          }}
-        >
+      <div
+        key={p.title}
+        style={{
+          padding: "1rem 1.1rem",
+          borderRadius: "8px",
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          borderLeft: `3px solid ${p.tagColor}`,
+          transition: "background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.12s",
+          boxShadow: "none",
+        }}
+        onMouseEnter={(e) => {
+          const el = e.currentTarget;
+          el.style.background = "rgba(167, 139, 250, 0.05)";
+          el.style.borderColor = "rgba(167, 139, 250, 0.25)";
+          el.style.boxShadow = `0 6px 18px ${p.tagColor}22`;
+          el.style.transform = "translateY(-2px)";
+          el.style.borderLeft = `4px solid ${p.tagColor}`;
+          const h3 = el.querySelector("h3");
+          if (h3) h3.style.fontWeight = 800;
+        }}
+        onMouseLeave={(e) => {
+          const el = e.currentTarget;
+          el.style.background = "rgba(255,255,255,0.03)";
+          el.style.borderColor = "rgba(255,255,255,0.08)";
+          el.style.boxShadow = "none";
+          el.style.transform = "none";
+          el.style.borderLeft = `3px solid ${p.tagColor}`;
+          const h3 = el.querySelector("h3");
+          if (h3) h3.style.fontWeight = 700;
+        }}
+      >
           {/* Header row */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem", marginBottom: "0.4rem", flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              gap: "0.5rem",
+              marginBottom: "0.4rem",
+              flexWrap: "wrap",
+            }}
+          >
             <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
               <span style={{ fontSize: "1rem" }}>{p.emoji}</span>
-              <h3 style={{ fontWeight: 700, fontSize: "0.92rem", color: "#fff" }}>{p.title}</h3>
-              <span style={{
-                fontSize: "0.6rem",
-                fontFamily: "monospace",
-                letterSpacing: "0.08em",
-                color: p.tagColor,
-                background: `${p.tagColor}18`,
-                border: `1px solid ${p.tagColor}35`,
-                padding: "0.1rem 0.45rem",
-                borderRadius: "3px",
-              }}>{p.tag}</span>
+              <h3 style={{ fontWeight: 700, fontSize: "0.92rem", color: "#fff" }}>
+                {p.title}
+              </h3>
+              <span
+                style={{
+                  fontSize: "0.6rem",
+                  fontFamily: "monospace",
+                  letterSpacing: "0.08em",
+                  color: p.tagColor,
+                  background: `${p.tagColor}18`,
+                  border: `1px solid ${p.tagColor}35`,
+                  padding: "0.1rem 0.45rem",
+                  borderRadius: "3px",
+                }}
+              >
+                {p.tag}
+              </span>
             </div>
             <a
               href={p.link}
@@ -101,26 +132,35 @@ export default function Projects() {
               style={{
                 fontSize: "0.7rem",
                 fontFamily: "monospace",
-                color: "rgba(167,139,250,0.75)",   // soft purple
+                color: "rgba(167,139,250,0.85)",
                 textDecoration: "none",
                 letterSpacing: "0.05em",
                 transition: "color 0.15s",
                 flexShrink: 0,
               }}
-              onMouseEnter={e => e.currentTarget.style.color = "#a78bfa"}   // bright purple
-              onMouseLeave={e => e.currentTarget.style.color = "rgba(167,139,250,0.75)"}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#a78bfa")}
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = "rgba(167,139,250,0.85)")
+              }
             >
               {p.linkLabel}
             </a>
           </div>
 
-          <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.58)", lineHeight: 1.55, marginBottom: "0.6rem" }}>
+          <p
+            style={{
+              fontSize: "0.8rem",
+              color: "rgba(255,255,255,0.58)",
+              lineHeight: 1.55,
+              marginBottom: "0.6rem",
+            }}
+          >
             {p.desc}
           </p>
 
           {/* Stack pills */}
           <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
-            {p.stack.map(tag => (
+            {p.stack.map((tag) => (
               <span
                 key={tag}
                 style={{

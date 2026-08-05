@@ -1,3 +1,5 @@
+"use client";
+
 const awards = [
   {
     icon: "🔬",
@@ -5,7 +7,7 @@ const awards = [
     subtitle: "University of British Columbia",
     year: "Summer 2026",
     desc: "Competitive research program providing first-year students hands-on experience in physics & astronomy.",
-    accent: "#a78bfa",
+    accent: "#56e694",
   },
   {
     icon: "🌎",
@@ -13,21 +15,22 @@ const awards = [
     subtitle: "University of British Columbia",
     year: "Sep 2025",
     desc: "Merit-based entrance scholarship for exceptional academic achievement and leadership potential.",
-    accent: "#60a5fa",
+    accent: "#56e694",
   },
   {
     icon: "🥇",
     title: "Gold Medal — 19th National Astronomy & Astrophysics Olympiad",
     subtitle: "Young Scholars Club, Tehran, Iran",
     year: "Sep 2023",
-    accent: "#d4af37",
+    desc: "Achieved the highest national score in Stellar Astrophysics",
+    accent: "#56e694",
   },
   {
     icon: "🥉",
     title: "Bronze Medal — 18th National Astronomy & Astrophysics Olympiad",
     subtitle: "Young Scholars Club, Tehran, Iran",
     year: "Sep 2022",
-    accent: "#fb923c",
+    accent: "#56e694",
   },
 ];
 
@@ -46,14 +49,29 @@ export default function Awards() {
             background: "rgba(255,255,255,0.03)",
             border: "1px solid rgba(255,255,255,0.07)",
             borderLeft: `3px solid ${a.accent}`,
-            transition: "background 0.2s",
+            transition: "background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.12s",
+            boxShadow: "none",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.background = "rgba(255,255,255,0.06)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.background = "rgba(255,255,255,0.03)")
-          }
+          onMouseEnter={(e) => {
+            const el = e.currentTarget;
+            el.style.background = "rgba(86, 230, 148, 0.05)";
+            el.style.borderColor = "rgba(86, 230, 148, 0.25)";
+            el.style.boxShadow = `0 6px 18px ${a.accent}22`;
+            el.style.transform = "translateY(-2px)";
+            el.style.borderLeft = `4px solid ${a.accent}`;
+            const h3 = el.querySelector("h3");
+            if (h3) h3.style.fontWeight = 800;
+          }}
+          onMouseLeave={(e) => {
+            const el = e.currentTarget;
+            el.style.background = "rgba(255,255,255,0.03)";
+            el.style.borderColor = "rgba(255,255,255,0.07)";
+            el.style.boxShadow = "none";
+            el.style.transform = "none";
+            el.style.borderLeft = `3px solid ${a.accent}`;
+            const h3 = el.querySelector("h3");
+            if (h3) h3.style.fontWeight = 700;
+          }}
         >
           <span
             style={{
@@ -108,9 +126,10 @@ export default function Awards() {
                   flexShrink: 0,
                   fontFamily: "monospace",
                   fontSize: "0.65rem",
-                  color: "rgba(255,255,255,0.35)",
+                  color: a.accent,
                   letterSpacing: "0.07em",
                   textAlign: "right",
+                  opacity: 0.8,
                 }}
               >
                 {a.year}

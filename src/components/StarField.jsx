@@ -26,8 +26,8 @@ import VoyagerDisk from "@/components/VoyagerDisc";
 const PLANET_POSITIONS = {
   education: [22, 8, 150],
   work: [-25, -10, 110],
-  projects: [18, 15, 60],
-  research: [-15, -12, 0],
+  research: [18, 15, 60],
+  projects: [-15, -12, 0],
   awards: [28, 5, -50],
 };
 
@@ -168,13 +168,13 @@ export default function StarField() {
       .then(data => setTimezone(data.timeZone))
       .catch(() => setTimezone('UTC'));
   }, [location.lat, location.lng]);
-  // EDIT COLORS HERE
+
   const planetSections = {
-    education: { title: "Education", component: <Education />, color: "#f97316" }, // Orange
+    education: { title: "Education", component: <Education />, color: "#f8bb8f" }, // Orange
     work: { title: "Work Experience", component: <Work />, color: "#ace6ee" },      // Light Blue
-    projects: { title: "Projects", component: <Projects />, color: "#e484eb" },    // Purple/Pink
-    awards: { title: "Awards", component: <Awards />, color: "#56e694" },          // Green
-    research: { title: "Research", component: <Research />, color: "#ff69b4" },    // PINK (Updated)
+    projects: { title: "Projects", component: <Projects />, color: "#c6b1fb" },    // Purple/Pink
+    awards: { title: "Awards", component: <Awards />, color: "#b5f0cf" },          // Green
+    research: { title: "Research", component: <Research />, color: "#ef9ec6" },    // PINK
     about: { title: "About Me", component: <AboutMe />, color: "#ffffff" },        // White
   };
 
